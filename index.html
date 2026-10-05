@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#00629B">
+  <title>IEEE Arcade – IEEE CS ISIMA Student Branch</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+  <!-- ===== Header (long-press the logo for 3 s = hidden staff reset) ===== -->
+  <header class="app-header">
+    <div class="logo" id="logo" aria-label="IEEE CS ISIMA Student Branch logo">
+      <img src="assets/img/logo.png" alt=""
+           onerror="this.hidden = true; this.nextElementSibling.hidden = false;">
+      <span class="logo-fallback" hidden>IEEE<br>CS</span>
+    </div>
+    <div class="app-title">
+      <h1>IEEE Arcade</h1>
+      <p>IEEE Computer Society · ISIMA Student Branch</p>
+    </div>
+  </header>
+
+  <!-- ===== First visit: ask for the visitor's first name ===== -->
+  <section id="welcome" class="container" hidden>
+    <div class="card welcome-card">
+      <div class="welcome-emoji" aria-hidden="true">👋</div>
+      <h2>Welcome to the IEEE Arcade!</h2>
+      <p>Play mini-games and quizzes, collect badges in your passport, and win a goodie at our stand.</p>
+      <form id="name-form" autocomplete="off">
+        <label for="name-input">What's your first name?</label>
+        <input id="name-input" type="text" maxlength="30" placeholder="Your first name" required>
+        <button type="submit" class="btn btn-primary btn-block">Let's play!</button>
+      </form>
+    </div>
+  </section>
+
+  <!-- ===== Hub (shown once a name is saved) ===== -->
+  <main id="hub" class="container" hidden>
+
+    <!-- Passport -->
+    <section class="card passport" aria-labelledby="passport-title">
+      <p class="greeting">Hi <strong id="visitor-name"></strong>!</p>
+      <h2 id="passport-title">Your passport</h2>
+      <div class="progress" role="progressbar" aria-valuemin="0" id="progress">
+        <div class="progress-fill" id="progress-fill"></div>
+      </div>
+      <p class="progress-label"><strong id="progress-text">0 / 5 badges</strong></p>
+      <p class="progress-hint" id="progress-hint"></p>
+      <button type="button" class="btn btn-accent btn-block" id="claim-btn" disabled>🎁 Claim your reward</button>
+    </section>
+
+    <!-- Game and quiz cards are built by js/app.js from IEEEArcade.BADGES -->
+    <section aria-labelledby="games-title">
+      <h2 class="section-title" id="games-title">🎮 Games</h2>
+      <div class="activity-grid" id="games-list"></div>
+    </section>
+
+    <section aria-labelledby="quizzes-title">
+      <h2 class="section-title" id="quizzes-title">❓ Quizzes</h2>
+      <div class="activity-grid" id="quizzes-list"></div>
+    </section>
+
+    <!-- About us / Join IEEE -->
+    <section class="card about" id="about" aria-labelledby="about-title">
+      <h2 id="about-title">About us</h2>
+
+      <h3>IEEE</h3>
+      <p>IEEE is the world's largest technical professional organization dedicated to advancing technology for the benefit of humanity. Its members are engineers, scientists, researchers and students all over the world.</p>
+
+      <h3>IEEE Computer Society</h3>
+      <p>The IEEE Computer Society (IEEE CS) is IEEE's community for computing: software, AI, cybersecurity, data, hardware and more. It connects students and professionals through conferences, publications and local chapters.</p>
+
+      <h3>Our Student Branch</h3>
+      <p>TODO_SB_DESCRIPTION (short description of the IEEE CS ISIMA Student Branch, founded in TODO_SB_FOUNDING_YEAR).</p>
+
+      <div class="social-links">
+        <a class="btn btn-ghost" href="TODO_SB_FACEBOOK_URL" target="_blank" rel="noopener">Facebook</a>
+        <a class="btn btn-ghost" href="TODO_SB_INSTAGRAM_URL" target="_blank" rel="noopener">Instagram</a>
+        <a class="btn btn-ghost" href="TODO_SB_LINKEDIN_URL" target="_blank" rel="noopener">LinkedIn</a>
+      </div>
+
+      <a class="btn btn-primary btn-block" href="https://www.ieee.org/membership/join" target="_blank" rel="noopener">Join IEEE ↗</a>
+    </section>
+
+    <!-- Credits -->
+    <section class="card credits" aria-labelledby="credits-title">
+      <h2 id="credits-title">Credits</h2>
+      <ul>
+        <li><strong>IEEE Journey</strong> is based on
+          <a href="https://github.com/gabrielecirulli/2048" target="_blank" rel="noopener">2048</a>
+          by Gabriele Cirulli (MIT License).</li>
+        <li><strong>Bug Runner</strong> is based on
+          <a href="https://github.com/wayou/t-rex-runner" target="_blank" rel="noopener">t-rex-runner</a>
+          by wayou, extracted from Chromium (BSD 3-Clause License).</li>
+        <li>Everything else made by the IEEE CS ISIMA Student Branch team.</li>
+      </ul>
+      <p class="small">The original license files are kept in each game folder.</p>
+    </section>
+
+  </main>
+
+  <!-- ===== Reward screen (full-screen overlay) ===== -->
+  <div id="reward" class="reward-overlay" hidden role="dialog" aria-modal="true" aria-labelledby="reward-title">
+    <div class="reward-box">
+      <div class="reward-emoji" aria-hidden="true">🎉</div>
+      <h2 id="reward-title">Congratulations, <span id="reward-name"></span>!</h2>
+      <p class="reward-stats">
+        <strong id="reward-count"></strong> badges · <strong id="reward-score"></strong> points
+      </p>
+      <ul class="reward-badges" id="reward-badges"></ul>
+      <p class="reward-message">Show this to a committee member at the IEEE stand</p>
+      <p class="reward-clock" id="reward-clock" aria-live="off"></p>
+      <button type="button" class="btn btn-ghost btn-block" id="reward-close">Close</button>
+    </div>
+  </div>
+
+  <script src="js/passport.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
