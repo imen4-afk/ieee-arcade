@@ -1,28 +1,31 @@
 /* ==========================================================================
-   IEEE Arcade – shared styles
-   Used by the hub (index.html), the quiz page and every game page.
+   IEEE Arcade – design system
+   Shared by every page: hub, quiz, leaderboard, dashboard and the games.
    ========================================================================== */
 
-/* ---------- Theme tokens ---------- */
+/* ---------- Tokens ---------- */
 :root {
   --ieee-blue: #00629B;
-  --ieee-blue-dark: #004b77;
+  --ieee-dark: #002855;
+  --ieee-light: #00B5E2;
   --cs-orange: #F7941D;
   --cs-orange-dark: #d97a06;
+  --on-orange: #1f1300;          /* text on orange buttons (white would be unreadable) */
 
-  --bg: #f3f6fa;
-  --surface: #ffffff;
-  --surface-2: #e8eef5;
-  --text: #14202b;
-  --muted: #5b6b7a;
-  --border: #d5dee8;
-  --success: #1e9e5a;
-  --danger: #d93a3a;
+  --bg: #f2f6fa;
+  --card: #ffffff;
+  --card-2: #e7eef6;
+  --text: #11202e;
+  --muted: #566778;
+  --border: #d3dee9;
+  --line: rgba(0, 98, 155, 0.07); /* circuit pattern lines */
+  --success: #1b9a57;
+  --danger: #d33a3a;
 
   --radius: 16px;
   --radius-sm: 10px;
-  --shadow: 0 4px 14px rgba(0, 40, 80, 0.10);
-  --tap: 44px; /* minimum tap target size */
+  --shadow: 0 4px 14px rgba(0, 40, 85, 0.10);
+  --tap: 44px;
 
   --font: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
 
@@ -31,23 +34,22 @@
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --ieee-blue: #2b8fd0;      /* a bit lighter so it reads on dark backgrounds */
-    --ieee-blue-dark: #1c74ad;
-    --bg: #0e1620;
-    --surface: #17222e;
-    --surface-2: #213040;
-    --text: #e9eff5;
-    --muted: #9aabbc;
-    --border: #2c3d4f;
-    --success: #34c27a;
-    --danger: #ff6464;
+    --ieee-blue: #2a90cf;        /* lighter so it stays readable on dark backgrounds */
+    --bg: #0b1520;
+    --card: #142231;
+    --card-2: #1d3044;
+    --text: #e8eff6;
+    --muted: #9db0c2;
+    --border: #2a3f55;
+    --line: rgba(0, 181, 226, 0.06);
+    --success: #33c07a;
+    --danger: #ff6b6b;
     --shadow: 0 4px 14px rgba(0, 0, 0, 0.35);
   }
 }
 
 /* ---------- Base ---------- */
 *, *::before, *::after { box-sizing: border-box; }
-
 html { -webkit-text-size-adjust: 100%; }
 
 body {
@@ -55,15 +57,20 @@ body {
   font-family: var(--font);
   font-size: 16px;
   line-height: 1.5;
-  background: var(--bg);
   color: var(--text);
+  background-color: var(--bg);
+  /* thin circuit-board lines with "solder" dots */
+  background-image:
+    radial-gradient(circle at 24px 24px, var(--line) 3px, transparent 3.5px),
+    linear-gradient(90deg, var(--line) 1px, transparent 1px),
+    linear-gradient(var(--line) 1px, transparent 1px);
+  background-size: 96px 96px, 96px 48px, 48px 96px;
   -webkit-tap-highlight-color: transparent;
 }
 
 h1, h2, h3 { line-height: 1.2; margin: 0 0 0.5em; }
 p { margin: 0 0 0.8em; }
 a { color: var(--ieee-blue); }
-
 [hidden] { display: none !important; }
 
 .container {
@@ -72,67 +79,195 @@ a { color: var(--ieee-blue); }
   margin: 0 auto;
   padding: 16px;
 }
-
 .small { font-size: 0.85rem; color: var(--muted); }
+.center { text-align: center; }
 
-/* ---------- Header ---------- */
-.app-header {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 14px 16px;
-  padding-top: calc(14px + env(safe-area-inset-top, 0px));
-  background: linear-gradient(135deg, var(--ieee-blue) 0%, var(--ieee-blue-dark) 70%, var(--cs-orange) 160%);
-  color: #fff;
+/* ---------- Kite motif (inspired by Franklin's kite, NOT the official logo) ---------- */
+.kite {
+  display: inline-block;
+  width: 0.7em;
+  height: 0.7em;
+  transform: rotate(45deg);
+  border-radius: 2px;
+  background: linear-gradient(135deg, var(--ieee-light), var(--ieee-blue));
+  flex: 0 0 auto;
 }
 
-.app-title h1 { font-size: 1.5rem; margin: 0; letter-spacing: 0.3px; }
-.app-title p  { font-size: 0.8rem; margin: 2px 0 0; opacity: 0.9; }
-
-.logo {
-  flex: 0 0 auto;
-  width: 56px;
-  height: 56px;
-  border-radius: 50%;
-  background: #fff;
+/* Section titles start with a small orange diamond */
+.section-title {
   display: flex;
   align-items: center;
-  justify-content: center;
+  gap: 10px;
+  font-size: 1.2rem;
+  margin: 12px 4px 12px;
+}
+.section-title::before {
+  content: "";
+  width: 12px;
+  height: 12px;
+  transform: rotate(45deg);
+  border-radius: 2px;
+  background: var(--cs-orange);
+  flex: 0 0 auto;
+}
+
+/* Divider: a line with three diamonds in the middle */
+.divider {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 24px 0;
+  color: var(--ieee-blue);
+}
+.divider::before, .divider::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: var(--border);
+}
+.divider span {
+  width: 8px;
+  height: 8px;
+  transform: rotate(45deg);
+  background: currentColor;
+  opacity: 0.6;
+}
+.divider span:nth-child(2) { background: var(--cs-orange); opacity: 1; width: 10px; height: 10px; }
+
+/* ---------- Header (hub) ---------- */
+.app-header {
+  position: relative;
   overflow: hidden;
-  /* long-press: no text selection, no iOS "save image" menu */
+  padding: 16px;
+  padding-top: calc(16px + env(safe-area-inset-top, 0px));
+  color: #fff;
+  background-color: var(--ieee-dark);
+  background-image:
+    radial-gradient(circle at 24px 24px, rgba(255, 255, 255, 0.12) 3px, transparent 3.5px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.06) 1px, transparent 1px),
+    linear-gradient(rgba(255, 255, 255, 0.06) 1px, transparent 1px),
+    linear-gradient(135deg, var(--ieee-dark) 0%, var(--ieee-blue) 100%);
+  background-size: 96px 96px, 96px 48px, 48px 96px, 100% 100%;
+}
+/* big faded kite in the corner */
+.app-header::after {
+  content: "";
+  position: absolute;
+  right: -40px;
+  top: -40px;
+  width: 140px;
+  height: 140px;
+  transform: rotate(45deg);
+  border: 3px solid rgba(0, 181, 226, 0.35);
+  border-radius: 10px;
+  pointer-events: none;
+}
+
+.header-inner {
+  position: relative;
+  z-index: 1;
+  max-width: 560px;
+  margin: 0 auto;
+}
+.header-logos { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
+.app-header h1 { font-size: 1.75rem; margin: 0; letter-spacing: 0.3px; }
+.app-header .subtitle { font-size: 0.85rem; margin: 2px 0 0; opacity: 0.9; }
+
+/* Logos: shown as-is on a white chip. Never stretch, recolor or crop them. */
+.logo-chip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 52px;
+  min-width: 52px;
+  padding: 6px 10px;
+  background: #fff;
+  border-radius: 12px;
   user-select: none;
   -webkit-user-select: none;
-  -webkit-touch-callout: none;
+  -webkit-touch-callout: none;   /* no "save image" menu on long-press */
   touch-action: manipulation;
   transition: transform 0.2s;
 }
-.logo img { width: 100%; height: 100%; object-fit: contain; pointer-events: none; }
+.logo-chip img {
+  display: block;
+  height: 40px;
+  width: auto;
+  max-width: 130px;
+  object-fit: contain;
+  pointer-events: none;
+}
 .logo-fallback {
   color: var(--ieee-blue);
   font-weight: 800;
-  font-size: 0.8rem;
+  font-size: 0.78rem;
   line-height: 1.1;
   text-align: center;
 }
-/* visual feedback while staff are holding the logo */
-.logo.pressing {
-  transform: scale(0.85);
+/* feedback while staff hold the SB logo */
+.logo-chip.pressing {
+  transform: scale(0.88);
   transition: transform 3s linear;
   box-shadow: 0 0 0 4px var(--cs-orange);
 }
 
+/* ---------- Top bar (quiz, leaderboard and game pages) ---------- */
+.topbar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  padding-top: calc(10px + env(safe-area-inset-top, 0px));
+  background: var(--ieee-dark);
+  color: #fff;
+  font-family: var(--font);
+}
+.topbar-title {
+  flex: 1;
+  min-width: 0;
+  margin: 0;
+  font-size: 1.05rem;
+  font-weight: 800;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.player-chip {
+  flex: 0 0 auto;
+  max-width: 45%;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.14);
+  font-size: 0.82rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.back-btn {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--tap);
+  padding: 8px 14px;
+  border-radius: 999px;
+  background: var(--cs-orange);
+  color: var(--on-orange);
+  font-family: var(--font);
+  font-size: 0.95rem;
+  font-weight: 800;
+  text-decoration: none;
+  touch-action: manipulation;
+}
+.back-btn:active { transform: scale(0.96); }
+
 /* ---------- Cards ---------- */
 .card {
-  background: var(--surface);
+  background: var(--card);
   border-radius: var(--radius);
   box-shadow: var(--shadow);
   padding: 20px;
   margin-bottom: 20px;
-}
-
-.section-title {
-  font-size: 1.2rem;
-  margin: 8px 4px 12px;
 }
 
 /* ---------- Buttons ---------- */
@@ -146,7 +281,7 @@ a { color: var(--ieee-blue); }
   border: 2px solid transparent;
   border-radius: 999px;
   font: inherit;
-  font-weight: 700;
+  font-weight: 800;
   text-decoration: none;
   cursor: pointer;
   touch-action: manipulation;
@@ -156,84 +291,95 @@ a { color: var(--ieee-blue); }
 .btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
 .btn-block { display: flex; width: 100%; }
 
-.btn-primary { background: var(--ieee-blue); color: #fff; }
-.btn-accent  { background: var(--cs-orange); color: #1a1000; }
+.btn-primary { background: var(--cs-orange); color: var(--on-orange); }
+.btn-blue    { background: var(--ieee-blue); color: #fff; }
 .btn-ghost   { background: transparent; color: var(--ieee-blue); border-color: var(--border); }
 
-/* "← Arcade" button used on game and quiz pages */
-.back-btn {
-  display: inline-flex;
-  align-items: center;
-  min-height: var(--tap);
-  padding: 8px 16px;
-  border-radius: 999px;
-  background: var(--ieee-blue);
-  color: #fff;
-  font-family: var(--font);
-  font-size: 0.95rem;
-  font-weight: 700;
-  text-decoration: none;
-  box-shadow: var(--shadow);
-  touch-action: manipulation;
-}
-.back-btn:active { transform: scale(0.97); }
-
 /* ---------- Forms ---------- */
-label { display: block; font-weight: 600; margin-bottom: 6px; }
+label { display: block; font-weight: 700; margin-bottom: 6px; }
 
 input[type="text"] {
   width: 100%;
-  min-height: 48px;
+  min-height: 50px;
   padding: 10px 14px;
-  margin-bottom: 14px;
   border: 2px solid var(--border);
   border-radius: var(--radius-sm);
   background: var(--bg);
   color: var(--text);
   font: inherit;
-  font-size: 1.1rem; /* >= 16px so iOS does not zoom in */
+  font-size: 1.15rem; /* >= 16px so iOS doesn't zoom in */
 }
 input[type="text"]:focus { outline: none; border-color: var(--ieee-blue); }
+input.is-error { border-color: var(--danger); }
+input.is-ok { border-color: var(--success); }
 
-/* ---------- Welcome ---------- */
-.welcome-card { text-align: center; margin-top: 12px; }
-.welcome-card form { text-align: left; margin-top: 16px; }
-.welcome-emoji { font-size: 3rem; animation: wave 1.6s ease-in-out 2; }
+.field-hint {
+  min-height: 1.5em;
+  margin: 6px 2px 14px;
+  font-size: 0.9rem;
+  color: var(--muted);
+}
+.field-hint.error { color: var(--danger); }
+.field-hint.ok { color: var(--success); }
 
-@keyframes wave {
-  0%, 100% { transform: rotate(0); }
-  25% { transform: rotate(18deg); }
-  75% { transform: rotate(-10deg); }
+/* ---------- Join screen ---------- */
+.join-card { text-align: center; margin-top: 8px; }
+.join-card form { text-align: left; margin-top: 16px; }
+.join-kites { display: flex; justify-content: center; gap: 10px; font-size: 1.6rem; margin: 4px 0 12px; }
+.join-kites .kite:nth-child(2) { background: linear-gradient(135deg, #ffc477, var(--cs-orange)); font-size: 2rem; }
+.join-kites .kite { animation: float 2.4s ease-in-out infinite; }
+.join-kites .kite:nth-child(2) { animation-delay: 0.3s; }
+.join-kites .kite:nth-child(3) { animation-delay: 0.6s; }
+
+@keyframes float {
+  0%, 100% { transform: rotate(45deg) translate(0, 0); }
+  50% { transform: rotate(45deg) translate(-4px, -4px); }
 }
 
-/* ---------- Passport ---------- */
-.passport { text-align: center; }
-.greeting { color: var(--muted); margin-bottom: 4px; }
-.passport h2 { font-size: 1.3rem; }
+/* ---------- Player panel ---------- */
+.player-panel { text-align: center; }
+.greeting { font-size: 1.35rem; font-weight: 800; margin-bottom: 14px; }
+.greeting strong { color: var(--ieee-blue); }
 
-.progress {
-  height: 16px;
-  background: var(--surface-2);
-  border-radius: 999px;
-  overflow: hidden;
-  margin: 10px 0 8px;
+.stats {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-bottom: 14px;
 }
-.progress-fill {
-  height: 100%;
-  width: 0;
-  background: linear-gradient(90deg, var(--ieee-blue), var(--cs-orange));
-  border-radius: 999px;
-  transition: width 0.6s ease;
+.stat {
+  padding: 12px 8px;
+  border-radius: var(--radius-sm);
+  background: var(--card-2);
 }
-.progress-label { font-size: 1.1rem; margin-bottom: 2px; }
-.progress-hint  { color: var(--muted); font-size: 0.9rem; }
+.stat-value {
+  display: block;
+  font-size: 1.7rem;
+  font-weight: 900;
+  line-height: 1.1;
+  color: var(--ieee-blue);
+  font-variant-numeric: tabular-nums;
+}
+.stat-label { display: block; font-size: 0.8rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; }
+.stat-rank .stat-value { color: var(--cs-orange-dark); }
+@media (prefers-color-scheme: dark) {
+  .stat-rank .stat-value { color: var(--cs-orange); }
+}
 
-/* ---------- Game / quiz cards ---------- */
+.notice {
+  margin: 12px 0 0;
+  padding: 8px 12px;
+  border-radius: var(--radius-sm);
+  background: rgba(247, 148, 29, 0.15);
+  font-size: 0.88rem;
+}
+
+/* ---------- Activity cards ---------- */
 .activity-grid {
   display: grid;
   grid-template-columns: 1fr;
   gap: 12px;
-  margin-bottom: 24px;
+  margin-bottom: 20px;
 }
 
 .activity {
@@ -241,9 +387,9 @@ input[type="text"]:focus { outline: none; border-color: var(--ieee-blue); }
   display: flex;
   align-items: center;
   gap: 14px;
-  min-height: 76px;
+  min-height: 80px;
   padding: 14px 16px;
-  background: var(--surface);
+  background: var(--card);
   border: 2px solid transparent;
   border-radius: var(--radius);
   box-shadow: var(--shadow);
@@ -255,18 +401,32 @@ input[type="text"]:focus { outline: none; border-color: var(--ieee-blue); }
 .activity:active { transform: scale(0.98); }
 
 .activity-icon {
+  position: relative;
   flex: 0 0 52px;
   height: 52px;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 1.8rem;
-  background: var(--surface-2);
+  font-size: 1.7rem;
   border-radius: 14px;
+  background: var(--card-2);
 }
+.activity.quiz .activity-icon { background: rgba(0, 181, 226, 0.15); }
+.activity.game .activity-icon { background: rgba(247, 148, 29, 0.15); }
+
 .activity-text { flex: 1; min-width: 0; }
-.activity-text strong { display: block; font-size: 1.05rem; }
-.activity-text span   { display: block; font-size: 0.88rem; color: var(--muted); }
+.activity-text strong { display: block; font-size: 1.02rem; line-height: 1.25; }
+.activity-sub { display: block; font-size: 0.86rem; color: var(--muted); }
+.activity-max {
+  display: inline-block;
+  margin-top: 4px;
+  padding: 1px 8px;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 800;
+  background: var(--card-2);
+  color: var(--ieee-blue);
+}
 
 .activity-status {
   flex: 0 0 auto;
@@ -276,11 +436,10 @@ input[type="text"]:focus { outline: none; border-color: var(--ieee-blue); }
   display: flex;
   align-items: center;
   justify-content: center;
-  font-weight: 800;
-  background: var(--surface-2);
+  font-weight: 900;
+  background: var(--card-2);
   color: var(--muted);
 }
-
 .activity.done { border-color: var(--success); }
 .activity.done .activity-status {
   background: var(--success);
@@ -295,77 +454,20 @@ input[type="text"]:focus { outline: none; border-color: var(--ieee-blue); }
 }
 
 /* ---------- About & credits ---------- */
-.about h3 { font-size: 1rem; color: var(--ieee-blue); margin-top: 16px; margin-bottom: 4px; }
-.social-links {
+.about h3 {
   display: flex;
-  flex-wrap: wrap;
+  align-items: center;
   gap: 8px;
-  margin: 16px 0;
+  font-size: 1rem;
+  color: var(--ieee-blue);
+  margin: 18px 0 4px;
 }
+.social-links { display: flex; flex-wrap: wrap; gap: 8px; margin: 16px 0; }
 .social-links .btn { flex: 1 1 auto; }
-
 .credits ul { padding-left: 20px; margin: 0 0 12px; }
 .credits li { margin-bottom: 8px; }
 
-/* ---------- Reward overlay ---------- */
-.reward-overlay {
-  position: fixed;
-  inset: 0;
-  z-index: 100;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 16px;
-  overflow-y: auto;
-  background: linear-gradient(135deg, var(--ieee-blue), var(--cs-orange));
-  background-size: 200% 200%;
-  animation: shimmer 4s ease-in-out infinite; /* moving background = clearly not a screenshot */
-}
-
-@keyframes shimmer {
-  0%, 100% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
-}
-
-.reward-box {
-  width: 100%;
-  max-width: 420px;
-  background: var(--surface);
-  border-radius: 24px;
-  padding: 24px 20px;
-  text-align: center;
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
-}
-.reward-emoji { font-size: 3.5rem; animation: pop 0.6s ease-out; }
-.reward-box h2 { font-size: 1.5rem; }
-.reward-stats { font-size: 1.1rem; }
-
-.reward-badges {
-  list-style: none;
-  padding: 0;
-  margin: 12px 0;
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 8px;
-}
-.reward-badges li {
-  background: var(--surface-2);
-  border-radius: 999px;
-  padding: 6px 12px;
-  font-size: 0.9rem;
-}
-
-.reward-message {
-  margin: 16px 0 8px;
-  padding: 14px;
-  border-radius: var(--radius-sm);
-  background: var(--cs-orange);
-  color: #1a1000;
-  font-size: 1.25rem;
-  font-weight: 800;
-}
-.reward-clock { font-variant-numeric: tabular-nums; color: var(--muted); }
+.site-footer { padding: 8px 16px 32px; text-align: center; color: var(--muted); font-size: 0.85rem; }
 
 /* ---------- Accessibility ---------- */
 :focus-visible { outline: 3px solid var(--cs-orange); outline-offset: 2px; }

@@ -1,83 +1,60 @@
 /*
  * IEEE Arcade – hub page (index.html)
- * Shows the name form on the first visit, then the passport, the game/quiz cards
- * and the reward screen. All data comes from js/passport.js (window.IEEEArcade).
+ * Join screen (nickname) → hub with points, rank and the quiz/game cards.
+ * All data and network calls go through js/arcade.js (window.IEEEArcade).
  */
 (function () {
   "use strict";
 
   var Arcade = window.IEEEArcade;
-  var RESET_HOLD_MS = 3000; // long-press duration on the logo for the staff reset
+  var CHECK_DELAY_MS = 400; // wait this long after typing before checking the nickname online
 
   function $(id) { return document.getElementById(id); }
 
-  // ---------- Rendering ----------
+  // ======================================================================
+  // Screens
+  // ======================================================================
 
   function render() {
-    var name = Arcade.getName();
-    $("welcome").hidden = !!name;
-    $("hub").hidden = !name;
-    if (!name) return;
-
-    $("visitor-name").textContent = name;
-    renderPassport();
-    renderCards("games-list", "game");
-    renderCards("quizzes-list", "quiz");
+    var nickname = Arcade.getNickname();
+    $("join").hidden = !!nickname;
+    $("hub").hidden = !nickname;
+    if (nickname) renderHub(nickname);
   }
 
-  function renderPassport() {
-    var total = Arcade.BADGES.length;
-    var count = Arcade.getBadgeCount();
-    var needed = Arcade.REWARD_THRESHOLD;
-
-    $("progress-fill").style.width = Math.round((count / total) * 100) + "%";
-    $("progress").setAttribute("aria-valuemax", total);
-    $("progress").setAttribute("aria-valuenow", count);
-    $("progress-text").textContent = count + " / " + total + " badges";
-
-    var hint;
-    if (count >= total) {
-      hint = "Wow, you collected every badge! 🏆";
-    } else if (count >= needed) {
-      hint = "Reward unlocked! Keep playing to beat your scores.";
-    } else {
-      var left = needed - count;
-      hint = "Earn " + left + " more badge" + (left > 1 ? "s" : "") + " to unlock your reward.";
-    }
-    $("progress-hint").textContent = hint;
-    $("claim-btn").disabled = !Arcade.canClaimReward();
+  function renderHub(nickname) {
+    $("player-name").textContent = nickname;
+    $("player-total").textContent = Arcade.getLocalTotal();
+    renderCards("quiz-list", "quiz");
+    renderCards("game-list", "game");
+    updatePendingNotice();
+    loadRank(nickname);
   }
 
   function renderCards(containerId, type) {
     var container = $(containerId);
-    var badges = Arcade.getBadges();
+    var bests = Arcade.getLocalBests();
     container.innerHTML = "";
 
-    Arcade.BADGES.filter(function (b) { return b.type === type; }).forEach(function (b) {
-      var earned = badges[b.id];
+    Arcade.ACTIVITIES.filter(function (a) { return a.type === type; }).forEach(function (a) {
+      var best = bests[a.id];
+      var played = best !== undefined;
+      var max = Arcade.maxPointsFor(a.id);
 
       var card = document.createElement("a");
-      card.className = "activity" + (earned ? " done" : "");
-      card.href = b.url;
+      card.className = "activity " + a.type + (played ? " done" : "");
+      card.href = a.url;
 
-      var icon = document.createElement("span");
-      icon.className = "activity-icon";
+      var icon = el("span", "activity-icon", a.icon);
       icon.setAttribute("aria-hidden", "true");
-      icon.textContent = b.icon;
 
-      var text = document.createElement("span");
-      text.className = "activity-text";
-      var title = document.createElement("strong");
-      title.textContent = b.title;
-      var sub = document.createElement("span");
-      sub.textContent = earned ? "Best score: " + earned.score : b.subtitle;
-      text.appendChild(title);
-      text.appendChild(sub);
+      var text = el("span", "activity-text");
+      text.appendChild(el("strong", "", a.title));
+      text.appendChild(el("span", "activity-sub", a.subtitle));
+      text.appendChild(el("span", "activity-max", played ? "Best: " + best + " / " + max : "Up to " + max + " pts"));
 
-      var status = document.createElement("span");
-      status.className = "activity-status";
-      status.textContent = earned ? "✓" : "›";
-      status.setAttribute("aria-label", earned ? "Badge earned" : "Not played yet");
+      var status = el("span", "activity-status", played ? "✓" : "›");
+      status.setAttribute("aria-label", played ? "Played" : "Not played yet");
 
       card.appendChild(icon);
       card.appendChild(text);
@@ -86,105 +63,130 @@
     });
   }
 
-  // ---------- Reward screen ----------
-
-  var clockTimer = null;
-
-  function updateClock() {
-    // A live clock shows staff that this is the real page, not an old screenshot.
-    $("reward-clock").textContent = new Date().toLocaleTimeString();
+  function el(tag, className, text) {
+    var node = document.createElement(tag);
+    if (className) node.className = className;
+    if (text !== undefined) node.textContent = text;
+    return node;
   }
 
-  function openReward() {
-    if (!Arcade.canClaimReward()) return;
-    var badges = Arcade.getBadges();
-
-    $("reward-name").textContent = Arcade.getName();
-    $("reward-count").textContent = Arcade.getBadgeCount() + " / " + Arcade.BADGES.length;
-    $("reward-score").textContent = Arcade.getTotalScore();
-
-    var list = $("reward-badges");
-    list.innerHTML = "";
-    Arcade.BADGES.forEach(function (b) {
-      if (!badges[b.id]) return;
-      var li = document.createElement("li");
-      li.textContent = b.icon + " " + b.title;
-      list.appendChild(li);
+  // Rank comes from the online leaderboard (top 100).
+  function loadRank(nickname) {
+    Arcade.getLeaderboard().then(function (result) {
+      if (!result.ok) {
+        $("player-rank").textContent = "–";
+        $("player-rank-label").textContent = "Rank (offline)";
+        return;
+      }
+      var rows = result.rows;
+      var index = -1;
+      for (var i = 0; i < rows.length; i++) {
+        if (String(rows[i].nickname).toLowerCase() === nickname.toLowerCase()) { index = i; break; }
+      }
+      var players = rows.length >= 100 ? "100+" : rows.length;
+      if (index === -1) {
+        $("player-rank").textContent = rows.length >= 100 ? "100+" : "–";
+        $("player-rank-label").textContent = "Rank";
+      } else {
+        $("player-rank").textContent = "#" + (index + 1);
+        $("player-rank-label").textContent = "of " + players + " players";
+        // The server total can be ahead of this phone (e.g. after a staff reset).
+        var serverTotal = Number(rows[index].total) || 0;
+        if (serverTotal > Arcade.getLocalTotal()) $("player-total").textContent = serverTotal;
+      }
     });
-
-    updateClock();
-    clockTimer = setInterval(updateClock, 1000);
-    $("reward").hidden = false;
-    document.body.style.overflow = "hidden";
-    $("reward-close").focus();
   }
 
-  function closeReward() {
-    clearInterval(clockTimer);
-    $("reward").hidden = true;
-    document.body.style.overflow = "";
+  function updatePendingNotice() {
+    $("pending-notice").hidden = !Arcade.hasPendingScores();
   }
 
-  // ---------- Hidden staff reset: long-press the logo for 3 seconds ----------
+  // ======================================================================
+  // Join form with live validation
+  // ======================================================================
 
-  function setupStaffReset() {
-    var logo = $("logo");
-    var timer = null;
+  var input = $("nickname-input");
+  var hint = $("nickname-hint");
+  var joinBtn = $("join-btn");
+  var checkTimer = null;
+  var checkId = 0; // ignores answers to old checks if the visitor kept typing
 
-    function start(e) {
-      if (e.button !== undefined && e.button !== 0) return; // left mouse / touch only
-      cancel();
-      logo.classList.add("pressing");
-      timer = setTimeout(function () {
-        timer = null;
-        logo.classList.remove("pressing");
-        if (window.confirm("Staff reset: clear this visitor's name and all badges?")) {
-          Arcade.reset();
-          closeReward();
-          $("name-input").value = "";
-          render();
-          window.scrollTo(0, 0);
-        }
-      }, RESET_HOLD_MS);
+  function setHint(text, state) {
+    hint.textContent = text;
+    hint.className = "field-hint" + (state ? " " + state : "");
+    input.classList.toggle("is-error", state === "error");
+    input.classList.toggle("is-ok", state === "ok");
+  }
+
+  input.addEventListener("input", function () {
+    clearTimeout(checkTimer);
+    checkId++;
+    var nickname = input.value.trim();
+
+    if (!nickname) {
+      setHint("3–16 characters: letters, numbers and _", "");
+      return;
+    }
+    var problem = Arcade.validateNickname(nickname);
+    if (problem) {
+      setHint(problem, "error");
+      return;
     }
 
-    function cancel() {
-      if (timer) clearTimeout(timer);
-      timer = null;
-      logo.classList.remove("pressing");
-    }
+    setHint("Checking…", "");
+    var myId = checkId;
+    checkTimer = setTimeout(function () {
+      Arcade.isNicknameAvailable(nickname).then(function (r) {
+        if (myId !== checkId) return; // outdated answer
+        if (!r.ok) setHint(r.error, "error");
+        else if (r.available) setHint("✓ " + nickname + " is available!", "ok");
+        else setHint("This nickname is taken, try another one.", "error");
+      });
+    }, CHECK_DELAY_MS);
+  });
 
-    logo.addEventListener("pointerdown", start);
-    logo.addEventListener("pointerup", cancel);
-    logo.addEventListener("pointerleave", cancel);
-    logo.addEventListener("pointercancel", cancel);
-    // Stop the phone's own long-press menu from appearing.
-    logo.addEventListener("contextmenu", function (e) { e.preventDefault(); });
-  }
-
-  // ---------- Events ----------
-
-  $("name-form").addEventListener("submit", function (e) {
+  $("join-form").addEventListener("submit", function (e) {
     e.preventDefault();
-    var name = $("name-input").value.trim();
-    if (!name) return;
-    Arcade.setName(name);
+    clearTimeout(checkTimer);
+    checkId++;
+    var nickname = input.value.trim();
+
+    joinBtn.disabled = true;
+    joinBtn.textContent = "Joining…";
+    Arcade.join(nickname).then(function (r) {
+      joinBtn.disabled = false;
+      joinBtn.textContent = "Join the Arcade";
+      if (r.ok) {
+        render();
+        window.scrollTo(0, 0);
+      } else {
+        setHint(r.error, "error");
+        input.focus();
+      }
+    });
+  });
+
+  // ======================================================================
+  // Start
+  // ======================================================================
+
+  Arcade.enableStaffReset($("sb-logo"), function () {
+    input.value = "";
+    setHint("3–16 characters: letters, numbers and _", "");
     render();
     window.scrollTo(0, 0);
   });
 
-  $("claim-btn").addEventListener("click", openReward);
-  $("reward-close").addEventListener("click", closeReward);
-  document.addEventListener("keydown", function (e) {
-    if (e.key === "Escape" && !$("reward").hidden) closeReward();
-  });
-
-  // When the visitor comes back from a game with the browser's Back button,
-  // the page may be restored from cache: refresh the badges.
+  // Coming back from a game with the browser's Back button may restore this
+  // page from cache: refresh the scores.
   window.addEventListener("pageshow", function (e) {
     if (e.persisted) render();
   });
 
-  setupStaffReset();
+  // Hide the "waiting for connection" notice once queued scores are sent.
+  setInterval(function () {
+    if (!$("hub").hidden) updatePendingNotice();
+  }, 5000);
+
   render();
 })();
