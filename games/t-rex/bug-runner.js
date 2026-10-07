@@ -1,5 +1,5 @@
 /*
- * Bug Runner – IEEE Arcade additions to the T-Rex runner (not part of the original game).
+ * Ezzdin 101 (Bug Runner) – IEEE Arcade additions to the T-Rex runner (not part of the original game).
  * index.js calls:
  *   BugRunner.drawRunner(ctx, trex)  every frame: draws Ezzdin instead of the dino
  *   BugRunner.onGameOver(distance)   when the runner crashes

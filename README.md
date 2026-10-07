@@ -20,7 +20,7 @@ Live site: https://ieee-arcade.vercel.app
 | `leaderboard.html` | Top 50 on the phone |
 | `dashboard.html` | Big-screen scoreboard for the stand (1920x1080, press **Fullscreen**) |
 | `games/2048/` | **IEEE Journey** (2048 reskin) |
-| `games/t-rex/` | **Bug Runner** (T-Rex runner reskin) |
+| `games/t-rex/` | **Ezzdin 101** (T-Rex runner reskin) |
 | `games/memory/` | **Tech Match** (memory game with our chapter and partner logos) |
 
 ## Run it locally
@@ -79,7 +79,7 @@ Keep the caps in sync with the Supabase `submit_score()` function.
 | --- | --- | --- |
 | Quiz (each) | 100 per correct answer + up to 50 speed bonus, 10 questions | 1500 |
 | IEEE Journey (2048) | game score / 20 | 500 |
-| Bug Runner | distance / 2 | 500 |
+| Ezzdin 101 | distance / 2 | 500 |
 | Tech Match | 500 − moves × 8 − seconds (minimum 50) | 500 |
 
 Only each player's **best** score per activity counts.
@@ -99,7 +99,7 @@ white artwork, so they always sit on dark tiles.
 ## Credits
 
 - **IEEE Journey** is based on [2048](https://github.com/gabrielecirulli/2048) by Gabriele Cirulli (MIT License, `games/2048/LICENSE.txt`).
-- **Bug Runner** is based on [T-Rex Runner](https://github.com/wayou/t-rex-runner) by wayou, extracted from Chromium (BSD 3-Clause License, `games/t-rex/LICENSE`).
+- **Ezzdin 101** is based on [T-Rex Runner](https://github.com/wayou/t-rex-runner) by wayou, extracted from Chromium (BSD 3-Clause License, `games/t-rex/LICENSE`).
 - Ezzdin is the IEEE ISIMA SB mascot (`assets/img/mascot.png`).
 - Design inspired by [isima.ieee.tn](https://isima.ieee.tn/).
 - IEEE, IEEE society and chapter logos are trademarks of IEEE.

@@ -1,7 +1,7 @@
 /* ==========================================================================
-   Bug Runner – IEEE Arcade theme for the T-Rex runner (loaded after index.css).
-   The game logic and sprite sheet are unchanged: the canvas is only recolored
-   with a CSS filter and placed on an IEEE-blue "stage" that fits the phone width.
+   Ezzdin 101 (Bug Runner) – IEEE Arcade theme for the T-Rex runner (loaded after index.css).
+   The game logic is unchanged: Ezzdin replaces the dino, the other sprites are
+   white, and the canvas sits on an IEEE-blue "stage" that fits the phone width.
    ========================================================================== */
 
 html, body { height: auto; }

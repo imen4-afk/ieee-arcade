@@ -31,7 +31,7 @@
     { id: "quiz-cs",     type: "quiz", icon: "💻", title: "Tech Basics",                   subtitle: "Easy tech questions for beginners", url: "quiz.html?set=quiz-cs" },
     { id: "quiz-sb",     type: "quiz", icon: "🎓", title: "Our Student Branch & Chapters", subtitle: "CS, CIS, RAS, WIE and our events",  url: "quiz.html?set=quiz-sb" },
     { id: "game-2048",   type: "game", icon: "🧩", title: "IEEE Journey",                  subtitle: "2048 – from Curious to IEEE Hero",  url: "games/2048/index.html" },
-    { id: "game-trex",   type: "game", icon: "🐞", title: "Bug Runner",                    subtitle: "Dodge the bugs, tap to jump",       url: "games/t-rex/index.html" },
+    { id: "game-trex",   type: "game", icon: "🐞", title: "Ezzdin 101",                    subtitle: "Help Ezzdin dodge the bugs!",      url: "games/t-rex/index.html" },
     { id: "game-memory", type: "game", icon: "🃏", title: "Tech Match",                    subtitle: "Match our chapter & partner logos", url: "games/memory/index.html" }
   ];
 
@@ -58,7 +58,7 @@
       return Math.min(MAX_POINTS.game, Math.floor(gameScore / 20));
     },
 
-    // Bug Runner (t-rex): the distance score divided by 2.
+    // Ezzdin 101 (t-rex runner): the distance score divided by 2.
     trex: function (distanceScore) {
       return Math.min(MAX_POINTS.game, Math.floor(distanceScore / 2));
     },
