@@ -169,13 +169,13 @@
   // ---------- Next event (public, published events) ----------
 
   function refreshNextEvent() {
-    if (!window.IEEEEvents) return;
+    if (!window.IEEEEvents || !window.IEEEEventFormat) return;
     window.IEEEEvents.fetchUpcoming(1).then(function (r) {
       var ev = r.ok && r.events[0];
       $("dash-next").hidden = !ev;
       if (ev) {
-        $("dash-next-text").textContent = ev.title + " · " +
-          window.IEEEEvents.longDate(ev.starts_at) + ", " + window.IEEEEvents.time(ev.starts_at);
+        // same date formatting as the event cards (js/events-format.js)
+        $("dash-next-text").textContent = ev.title + " · " + window.IEEEEventFormat.shortText(ev);
       }
     });
   }

@@ -77,7 +77,8 @@
   var KEY_QUEUE = "ieeeArcade.queue";         // { activityId: { score, nickname, token } }
   var LEGACY_KEYS = ["ieeeArcade.nickname"];  // from the version without passwords
   var GAME_KEYS = ["bestScore", "gameState"]; // saved by the original 2048 game
-  // "already subscribed / dismissed" flags of js/subscribe.js (never the email itself)
+  // flags of the removed reminders card (old version), cleaned up on log out.
+  // The per-nickname "ieeeArcade.subscribed:{nickname}" flags are kept on purpose.
   var REMINDER_KEYS = ["ieeeArcade.remindersSubscribed", "ieeeArcade.remindersDismissed"];
   var RETRY_EVERY_MS = 30000;
   var REQUEST_TIMEOUT_MS = 8000;

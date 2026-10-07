@@ -94,6 +94,33 @@
   function shortDate(iso) { return fmt(iso, { weekday: "short", day: "numeric", month: "short" }); }
   function timeOf(iso) { var p = tzParts(iso); return pad(p.hour) + ":" + pad(p.minute); }
   function sameMonth(a, b) { var pa = tzParts(a), pb = tzParts(b); return pa.year === pb.year && pa.month === pb.month; }
+  function dayIdx(iso) { var p = tzParts(iso); return Math.floor(Date.UTC(p.year, p.month - 1, p.day) / 86400000); }
+
+  // All-day events are saved as first day 00:00 → last day 23:59 (Tunis time)
+  function isMultiDay(ev) { return !!ev.ends_at && dayIdx(ev.ends_at) > dayIdx(ev.starts_at); }
+  function endOfEvent(ev) { return new Date(ev.ends_at || ev.starts_at); }
+
+  // Short "when" line for the lists: "Sat 17 Oct · All day", "Fri 30 – Sat 31 Oct · All day", "Tue 20 Oct · 14:00–17:00"
+  function whenShort(ev) {
+    if (ev.all_day) {
+      return (isMultiDay(ev) ? shortDate(ev.starts_at) + " – " + shortDate(ev.ends_at) : shortDate(ev.starts_at)) + " · All day";
+    }
+    return shortDate(ev.starts_at) + " · " + timeOf(ev.starts_at) + (ev.ends_at ? "–" + timeOf(ev.ends_at) : "");
+  }
+
+  // Date and time lines for the reminder email
+  function whenLong(ev) {
+    if (ev.all_day) {
+      return {
+        date: isMultiDay(ev) ? longDate(ev.starts_at) + " – " + longDate(ev.ends_at) : longDate(ev.starts_at),
+        time: "All day"
+      };
+    }
+    return {
+      date: longDate(ev.starts_at),
+      time: timeOf(ev.starts_at) + (ev.ends_at ? "–" + timeOf(ev.ends_at) : "") + " (Tunis time)"
+    };
+  }
 
   // ======================================================================
   // Session (sessionStorage only)
@@ -325,8 +352,8 @@
     var groups = { month: [], later: [], past: [] };
     eventsCache.forEach(function (ev) {
       var start = new Date(ev.starts_at);
-      if (start < now) groups.past.push(ev);
-      else if (sameMonth(start, now)) groups.month.push(ev);
+      if (endOfEvent(ev) < now) groups.past.push(ev);                 // ended
+      else if (start <= now || sameMonth(start, now)) groups.month.push(ev); // running now or this month
       else groups.later.push(ev);
     });
     groups.past.reverse(); // most recent first
@@ -350,8 +377,7 @@
     badgeLine.appendChild(document.createTextNode(ev.chapter || "SB"));
     main.appendChild(badgeLine);
     main.appendChild(el("strong", "", ev.title));
-    main.appendChild(el("span", "", shortDate(ev.starts_at) + " · " + timeOf(ev.starts_at) +
-      (ev.ends_at ? "–" + timeOf(ev.ends_at) : "") + (ev.location ? " · " + ev.location : "")));
+    main.appendChild(el("span", "", whenShort(ev) + (ev.location ? " · " + ev.location : "")));
     row.appendChild(main);
 
     var edit = el("button", "btn btn-ghost", "Edit");
@@ -369,8 +395,18 @@
     return row;
   }
 
+  // "All day" hides the time fields and shows "Last day" (for multi-day events)
+  function setAllDayMode(on) {
+    $("ev-allday").checked = on;
+    $("ev-last-wrap").hidden = !on;
+    $("ev-date-label").textContent = on ? "First day *" : "Date *";
+    Array.prototype.forEach.call(document.querySelectorAll("#event-form .time-field"), function (f) { f.hidden = on; });
+  }
+  $("ev-allday").addEventListener("change", function () { setAllDayMode($("ev-allday").checked); });
+
   function resetForm() {
     $("event-form").reset();
+    setAllDayMode(false);
     $("ev-id").value = "";
     $("ev-published").checked = true;
     $("ev-chapter").value = "SB";
@@ -387,8 +423,16 @@
     $("ev-title").value = ev.title || "";
     $("ev-description").value = ev.description || "";
     $("ev-date").value = start.date;
-    $("ev-start").value = start.time;
-    $("ev-end").value = ev.ends_at ? isoToInputs(ev.ends_at).time : "";
+    setAllDayMode(!!ev.all_day);
+    if (ev.all_day) {
+      $("ev-start").value = "";
+      $("ev-end").value = "";
+      $("ev-last").value = isMultiDay(ev) ? isoToInputs(ev.ends_at).date : "";
+    } else {
+      $("ev-start").value = start.time;
+      $("ev-end").value = ev.ends_at ? isoToInputs(ev.ends_at).time : "";
+      $("ev-last").value = "";
+    }
     $("ev-location").value = ev.location || "";
     $("ev-chapter").value = CHAPTERS.indexOf(ev.chapter) !== -1 ? ev.chapter : "SB";
     $("ev-url").value = ev.register_url || "";
@@ -411,13 +455,19 @@
     var location = $("ev-location").value.trim();
     var chapter = $("ev-chapter").value;
     var url = $("ev-url").value.trim();
+    var allDay = $("ev-allday").checked;
+    var lastDay = $("ev-last").value;
 
     if (!title) return { error: "Please enter a title." };
     if (title.length > 150) return { error: "The title is too long (150 characters max)." };
     if (description.length > 3000) return { error: "The description is too long (3000 characters max)." };
-    if (!date) return { error: "Please choose a date." };
-    if (!start) return { error: "Please choose a start time." };
-    if (end && end <= start) return { error: "The end time must be after the start time." };
+    if (!date) return { error: allDay ? "Please choose the first day." : "Please choose a date." };
+    if (allDay) {
+      if (lastDay && lastDay < date) return { error: "The last day can't be before the first day." };
+    } else {
+      if (!start) return { error: "Please choose a start time." };
+      if (end && end <= start) return { error: "The end time must be after the start time." };
+    }
     if (CHAPTERS.indexOf(chapter) === -1) return { error: "Please choose a chapter." };
     if (url) {
       var okUrl = /^https:\/\/\S+$/i.test(url) && url.length <= 500;
@@ -425,8 +475,9 @@
       if (!okUrl) return { error: "The registration link must be a full link starting with https://" };
     }
 
-    var startsAt = tunisToISO(date, start);
-    var endsAt = end ? tunisToISO(date, end) : null;
+    // All day: first day 00:00 → last day 23:59 (Africa/Tunis)
+    var startsAt = allDay ? tunisToISO(date, "00:00") : tunisToISO(date, start);
+    var endsAt = allDay ? tunisToISO(lastDay || date, "23:59") : (end ? tunisToISO(date, end) : null);
     if (!startsAt) return { error: "Please check the date and time." };
 
     return {
@@ -435,6 +486,7 @@
         description: description || null,
         starts_at: startsAt,
         ends_at: endsAt,
+        all_day: allDay,
         location: location || null,
         chapter: chapter,
         register_url: url || null,
@@ -617,7 +669,7 @@
 
   function upcomingEvents() {
     var now = new Date();
-    return eventsCache.filter(function (ev) { return new Date(ev.starts_at) >= now; });
+    return eventsCache.filter(function (ev) { return endOfEvent(ev) >= now; }); // not ended yet
   }
 
   function renderReminderOptions() {
@@ -650,7 +702,8 @@
       $("reminder-status").textContent = "";
       return;
     }
-    var date = longDate(ev.starts_at);
+    var when = whenLong(ev);
+    var date = when.date;
     var subject = "Reminder: " + ev.title + " — " + date;
     var lines = [
       "Hello!",
@@ -659,7 +712,7 @@
       "",
       "📌 " + ev.title,
       "📅 Date: " + date,
-      "⏰ Time: " + timeOf(ev.starts_at) + (ev.ends_at ? "–" + timeOf(ev.ends_at) : "") + " (Tunis time)"
+      "⏰ Time: " + when.time
     ];
     if (ev.location) lines.push("📍 Location: " + ev.location);
     lines.push("👥 Organized by: " + (CHAPTER_NAMES[ev.chapter] || CHAPTER_NAMES.SB));

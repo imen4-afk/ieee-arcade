@@ -26,24 +26,19 @@
     if (nickname) renderHub(nickname);
   }
 
-  // "Upcoming events" card (+ the reminders card for logged-in players) right
-  // under the visible panel: the player panel, or the account screen.
+  // "Upcoming events" card right under the visible panel: the player panel, or the account screen.
   function placeEventCards(nickname) {
     var eventsCard = $("events-card");
-    var reminderCard = $("reminder-card");
     var anchor = nickname ? $("player-panel") : $("auth");
     anchor.parentNode.insertBefore(eventsCard, anchor.nextSibling);
-    eventsCard.parentNode.insertBefore(reminderCard, eventsCard.nextSibling);
-    var Sub = window.IEEESubscribe;
-    reminderCard.hidden = !nickname || !Sub || Sub.isSubscribed() || Sub.isDismissed();
   }
 
   function loadNextEvent() {
-    if (!window.IEEEEvents) return;
+    if (!window.IEEEEvents || !window.IEEEEventFormat) return;
     window.IEEEEvents.fetchUpcoming(1).then(function (r) {
       if (!r.ok || !r.events.length) return;
       var ev = r.events[0];
-      $("events-card-next").textContent = "Next: " + ev.title + " · " + window.IEEEEvents.longDate(ev.starts_at);
+      $("events-card-next").textContent = "Next: " + ev.title + " · " + window.IEEEEventFormat.shortText(ev);
     });
   }
 
@@ -132,6 +127,16 @@
   var mode = "create"; // or "login"
   var nickInput = $("auth-nickname");
   var pwInput = $("auth-password");
+  var emailInput = $("auth-email");
+  var consentBox = $("auth-consent-box");
+
+  // Email + consent are shown on both tabs, except on "Log in" when the typed
+  // nickname already subscribed on this phone.
+  function updateReminderFields() {
+    var Sub = window.IEEESubscribe;
+    var alreadySubscribed = mode === "login" && !!Sub && Sub.isSubscribed(nickInput.value.trim());
+    $("auth-reminders").hidden = !Sub || alreadySubscribed;
+  }
   var submitBtn = $("auth-submit");
   var checkTimer = null;
   var checkId = 0; // ignores answers to old checks if the visitor kept typing
@@ -163,7 +168,7 @@
     // lets password managers save a new password / fill a saved one
     pwInput.setAttribute("autocomplete", create ? "new-password" : "current-password");
     submitBtn.textContent = create ? "Create my account" : "Log in";
-    $("auth-reminders").hidden = !create; // the optional email is only asked when creating an account
+    updateReminderFields();
     showError("");
     checkNickname();
     checkPassword();
@@ -200,7 +205,9 @@
     else setHint("password-hint", pwInput, "✓ Password OK", "ok");
   }
 
-  nickInput.addEventListener("input", function () { showError(""); checkNickname(); });
+  nickInput.addEventListener("input", function () { showError(""); checkNickname(); updateReminderFields(); });
+  emailInput.addEventListener("input", function () { showError(""); });
+  consentBox.addEventListener("change", function () { showError(""); });
   pwInput.addEventListener("input", function () { showError(""); checkPassword(); });
 
   $("tab-create").addEventListener("click", function () { setMode("create"); });
@@ -231,33 +238,39 @@
     var problem = Arcade.validateNickname(nickname) || Arcade.validatePassword(password);
     if (problem) { showError(problem); return; }
 
-    // Optional email for reminders (Create account only): valid + consent ticked, or empty.
-    var email = mode === "create" ? $("auth-email").value.trim() : "";
+    // Optional email for reminders (both tabs): empty, or valid + consent ticked.
     var Sub = window.IEEESubscribe;
-    if (email && Sub) {
-      if (!Sub.isValidEmail(email)) { showError(Sub.MESSAGES.invalid); $("auth-email").focus(); return; }
-      if (!authConsent.box.checked) { showError("Tick the box to get reminders, or leave the email empty."); authConsent.box.focus(); return; }
-    }
+    var askEmail = !!Sub && !$("auth-reminders").hidden;
+    var email = askEmail ? emailInput.value.trim() : "";
+    var consent = askEmail && consentBox.checked;
+    if (email && !Sub.isValidEmail(email)) { showError(Sub.MESSAGES.invalid); emailInput.focus(); return; }
+    if (email && !consent) { showError("Please tick the box to receive reminders"); consentBox.focus(); return; }
+    if (consent && !email) { showError("Please enter your email to receive reminders (or untick the box)."); emailInput.focus(); return; }
 
     var label = submitBtn.textContent;
     submitBtn.disabled = true;
     submitBtn.textContent = mode === "create" ? "Creating…" : "Logging in…";
     var action = mode === "create" ? Arcade.register : Arcade.login;
+    var emailSaved = true;
 
     action(nickname, password).then(function (r) {
-      if (!r.ok || !email || !Sub) return r;
-      // Account created: now save the email (a failure here doesn't block the account;
-      // the reminders card on the hub stays visible so the player can retry).
-      return Sub.subscribe(email, Arcade.getNickname()).then(function () { return r; });
+      if (!r.ok || !email) return r;
+      // Logged in: now save the email. If this fails the login still succeeds,
+      // the player just sees a small warning on the hub.
+      return Sub.subscribe(email, Arcade.getNickname()).then(function (s) {
+        emailSaved = s.ok;
+        return r;
+      });
     }).then(function (r) {
       submitBtn.disabled = false;
       submitBtn.textContent = label;
       if (r.ok) {
         pwInput.value = "";
-        $("auth-email").value = "";
-        authConsent.box.checked = false;
+        emailInput.value = "";
+        consentBox.checked = false;
         $("auth-notice").hidden = true;
         render();
+        $("email-warning").hidden = emailSaved;
         window.scrollTo(0, 0);
       } else {
         showError(r.error);
@@ -319,20 +332,6 @@
   // Staff shortcut: long-press the SB logo for 3 s = log out this phone
   Arcade.enableStaffReset($("sb-logo"), function () { showLoginScreen(""); });
 
-  // Event reminders: consent checkbox on "Create account" + the dismissible hub card
-  var authConsent = window.IEEESubscribe
-    ? window.IEEESubscribe.consentField("auth-consent-box")
-    : { wrap: document.createElement("span"), box: { checked: false } };
-  $("auth-consent").appendChild(authConsent.wrap);
-  if (window.IEEESubscribe) {
-    window.IEEESubscribe.mount($("reminder-box"), {
-      onDone: function () { setTimeout(function () { $("reminder-card").hidden = true; }, 2500); }
-    });
-  }
-  $("reminder-dismiss").addEventListener("click", function () {
-    if (window.IEEESubscribe) window.IEEESubscribe.dismiss();
-    $("reminder-card").hidden = true;
-  });
   loadNextEvent();
 
   // Coming back from a game with the browser's Back button may restore this

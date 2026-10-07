@@ -63,16 +63,25 @@
           <label for="ev-description">Description</label>
           <textarea id="ev-description" rows="4" maxlength="3000"></textarea>
 
+          <label class="consent" for="ev-allday">
+            <input type="checkbox" id="ev-allday">
+            <span><strong>All day</strong> (no start/end time). For an event over several days, also set the last day.</span>
+          </label>
+
           <div class="form-grid">
             <div>
-              <label for="ev-date">Date *</label>
+              <label for="ev-date" id="ev-date-label">Date *</label>
               <input id="ev-date" type="date" required>
             </div>
-            <div>
+            <div id="ev-last-wrap" hidden>
+              <label for="ev-last">Last day</label>
+              <input id="ev-last" type="date">
+            </div>
+            <div class="time-field">
               <label for="ev-start">Start time *</label>
               <input id="ev-start" type="time" required>
             </div>
-            <div>
+            <div class="time-field">
               <label for="ev-end">End time</label>
               <input id="ev-end" type="time">
             </div>

@@ -22,7 +22,7 @@ Live site: https://ieee-arcade.vercel.app
 | `games/2048/` | **IEEE Journey** (2048 reskin) |
 | `games/t-rex/` | **Ezzdin 101** (T-Rex runner reskin) |
 | `games/memory/` | **Tech Match** (memory game with our chapter and partner logos) |
-| `events.html` | Upcoming events this month (+ the next 3), Google Calendar links, email reminders sign-up |
+| `events.html` | Upcoming events this month (+ the next 3), all-day / multi-day events, Google Calendar links |
 | `unsubscribe.html` | Stop event reminders |
 | `admin/` | **Admin space** (events, subscribers, reminder emails). Not linked from any page. |
 
@@ -83,14 +83,25 @@ chapter (SB / CS / CIS / RAS / WIE), optional registration link (`https://` only
 Drafts (Published unticked) are invisible on the public page. Use **Edit**, **Duplicate** (to copy an event
 into the form) or **Delete** on each event. The public page `events.html` and the dashboard update by themselves.
 
+**All-day events** (e.g. IEEE Day, IEEEXtreme): tick **All day**, choose the first day and, for an event over
+several days, the last day. They're saved as first day 00:00 → last day 23:59 (Tunis time) with `all_day = true`,
+and shown as "All day" or as a date range ("Fri 30 – Sat 31 October"). An event stays on the public page until
+it has ended, with a "Happening now" label while it's running. Date formatting for the cards, the hub and the
+dashboard lives in one file: `js/events-format.js`.
+
 ### Send a reminder
 1. Admin → **✉️ Reminders** → choose the event: the subject and body are generated (with the unsubscribe link).
 2. **Open in Gmail** (or copy the subject and body into your email app).
 3. **Copy BCC list** and paste it into the **Bcc** field, **never in To or CC**, so subscribers can't see
    each other's addresses. Put your own address in To.
 
-The subscribers list (Admin → **📬 Subscribers**) shows only people who ticked the consent box. They can
-stop at any time on `unsubscribe.html`. Emails are never stored on players' phones or shown on the scoreboard.
+**Where the emails come from:** only from the join screen. Under the password, both tabs ("Create account"
+and "Log in") have an optional email field and an unticked consent checkbox; the email is saved (RPC
+`subscribe_email`) only after a successful register/login and only with the box ticked. Each phone remembers
+which nicknames already subscribed ("subscribed:{nickname}") and then hides the email field on "Log in".
+The subscribers list (Admin → **📬 Subscribers**) therefore shows only people who ticked the consent box.
+They can stop at any time on `unsubscribe.html` (linked at the bottom of `events.html`). Emails are never
+stored on players' phones, never logged, and never shown on the scoreboard.
 
 ## Add or edit quiz questions
 

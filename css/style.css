@@ -883,22 +883,6 @@ input[type="password"]:focus { outline: none; border-color: var(--blue-soft); }
 .events-card-text strong { display: block; font-size: 1.1rem; }
 .events-card-text span { display: block; font-size: 0.88rem; color: var(--muted); }
 
-.reminder-card { position: relative; }
-.reminder-card h2 { font-size: 1.1rem; padding-right: 40px; }
-.dismiss-btn {
-  position: absolute;
-  top: 8px;
-  right: 8px;
-  width: var(--tap);
-  height: var(--tap);
-  border: 0;
-  border-radius: 999px;
-  background: transparent;
-  color: var(--muted);
-  font-size: 1.1rem;
-  cursor: pointer;
-}
-
 .event-list { display: grid; gap: 14px; margin-bottom: 8px; }
 .event-card { display: flex; gap: 14px; align-items: flex-start; margin: 0; }
 .event-date {
@@ -914,6 +898,8 @@ input[type="password"]:focus { outline: none; border-color: var(--blue-soft); }
   line-height: 1.1;
 }
 .event-day { font-size: 1.9rem; font-weight: 900; }
+.event-date.range { flex-basis: 76px; }
+.event-date.range .event-day { font-size: 1.35rem; letter-spacing: -0.02em; }
 .event-month { font-size: 0.85rem; font-weight: 800; color: var(--orange-soft); text-transform: uppercase; letter-spacing: 0.06em; }
 .event-weekday { font-size: 0.75rem; color: var(--night-muted); margin-top: 2px; }
 .event-body { flex: 1; min-width: 0; }
@@ -932,6 +918,8 @@ input[type="password"]:focus { outline: none; border-color: var(--blue-soft); }
   color: var(--link);
 }
 .when-label.today { background: var(--grad-orange); color: var(--on-orange); }
+.when-label.now { background: var(--success); color: #fff; animation: pulse-now 2s ease-in-out infinite; }
+@keyframes pulse-now { 50% { opacity: 0.7; } }
 .chapter-badge {
   display: inline-flex;
   align-items: center;
@@ -952,10 +940,10 @@ input[type="password"]:focus { outline: none; border-color: var(--blue-soft); }
 }
 .chapter-badge-logo img { width: 100%; height: 100%; object-fit: contain; }
 .empty-events p { font-weight: 600; }
-.subscribe-card { margin-top: 24px; }
+.events-footer-links { margin-top: 24px; }
 
-/* ---------- Reminders sign-up (js/subscribe.js) ---------- */
-.subscribe-form input[type="email"], #auth-email, #unsub-email {
+/* ---------- Reminders email (login flow + unsubscribe.html) ---------- */
+#auth-email, #unsub-email {
   width: 100%;
   min-height: 52px;
   padding: 10px 14px;
@@ -967,7 +955,7 @@ input[type="password"]:focus { outline: none; border-color: var(--blue-soft); }
   font: inherit;
   font-size: 1.1rem;
 }
-.subscribe-form input[type="email"]:focus, #auth-email:focus, #unsub-email:focus { outline: none; border-color: var(--blue-soft); }
+#auth-email:focus, #unsub-email:focus { outline: none; border-color: var(--blue-soft); }
 .consent {
   display: flex;
   gap: 10px;

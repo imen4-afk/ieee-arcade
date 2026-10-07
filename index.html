@@ -75,12 +75,16 @@
         </div>
         <p class="field-hint" id="password-hint" aria-live="polite">At least 4 characters.</p>
 
-        <!-- Optional: event reminders (Create account tab only) -->
+        <!-- Optional: event reminders (both tabs; hidden on "Log in" if this nickname
+             already subscribed on this phone) -->
         <div id="auth-reminders">
-          <label for="auth-email">Email <span class="small">(optional, for event reminders)</span></label>
+          <label for="auth-email">Email (for event reminders)</label>
           <input id="auth-email" type="email" autocomplete="email" inputmode="email" maxlength="254"
-                 placeholder="you@example.com" autocapitalize="off" spellcheck="false">
-          <div id="auth-consent"></div>
+                 placeholder="you@example.com (optional)" autocapitalize="off" spellcheck="false">
+          <label class="consent" for="auth-consent-box">
+            <input type="checkbox" id="auth-consent-box">
+            <span>I agree that IEEE ISIMA SB may email me reminders about its upcoming events. I can unsubscribe at any time.</span>
+          </label>
         </div>
 
         <p class="form-error" id="auth-error" role="alert" hidden></p>
@@ -99,13 +103,6 @@
       </span>
       <span class="activity-status" aria-hidden="true">›</span>
     </a>
-
-    <!-- ===== Optional reminders sign-up (logged-in players, dismissible) ===== -->
-    <section class="card reminder-card" id="reminder-card" hidden aria-labelledby="reminder-title">
-      <button type="button" class="dismiss-btn" id="reminder-dismiss" aria-label="Dismiss">✕</button>
-      <h2 id="reminder-title">📬 Get reminders about our events</h2>
-      <div id="reminder-box"></div>
-    </section>
 
     <!-- ===== Player panel + activities (logged in) ===== -->
     <div id="hub" hidden>
@@ -126,6 +123,7 @@
         </div>
         <a class="btn btn-blue btn-block" href="leaderboard.html">🏆 Leaderboard</a>
         <p class="notice" id="pending-notice" hidden>📶 Some scores are waiting for a connection. They'll be sent automatically.</p>
+        <p class="notice" id="email-warning" hidden>📬 We couldn't save your email, you can try again next time you log in.</p>
       </section>
 
       <!-- Cards are built by js/app.js from IEEEArcade.ACTIVITIES -->
@@ -250,6 +248,7 @@
   <script src="js/config.js"></script>
   <script src="js/arcade.js"></script>
   <script src="js/layout.js" data-root=""></script>
+  <script src="js/events-format.js"></script>
   <script src="js/events.js"></script>
   <script src="js/subscribe.js"></script>
   <script src="js/app.js"></script>
