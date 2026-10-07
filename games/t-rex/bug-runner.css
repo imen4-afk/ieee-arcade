@@ -45,8 +45,9 @@ body.offline { background: var(--bg); color: var(--text); font-family: var(--fon
 
 .offline .runner-container { top: 16px; }
 
-/* Recolor: every sprite becomes white, so the runner and the bugs pop on IEEE blue */
-.runner-canvas { filter: brightness(0) invert(1); }
+/* The bugs, ground and score come from white copies of the sprite sheets
+   (assets/*-offline-sprite-white.png), so they pop on IEEE blue while
+   Ezzdin keeps his real colors. No CSS filter on the canvas any more. */
 
 /* the original full-screen touch area must stay under our links */
 .offline .controller { background: transparent; }

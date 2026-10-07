@@ -1731,6 +1731,11 @@
          * @param {number} y
          */
         draw: function (x, y) {
+            // IEEE Arcade: draw Ezzdin instead of the dino (see bug-runner.js).
+            // Falls back to the original dino if the image isn't loaded.
+            if (window.BugRunner && window.BugRunner.drawRunner(this.canvasCtx, this)) {
+                return;
+            }
             var sourceX = x;
             var sourceY = y;
             var sourceWidth = this.ducking && this.status != Trex.status.CRASHED ?
