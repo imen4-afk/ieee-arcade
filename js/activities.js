@@ -48,7 +48,7 @@
     { id: "game-hextris", name: "Hextris", description: "Match colors on the spinning hexagon", icon: "⬡",
       type: "game", category: "Arcade classics", url: "games/hextris/index.html", maxPoints: GAME_MAX, ready: true },
     { id: "game-tetris", name: "Tetris", description: "Stack the blocks, clear the lines", icon: "🧱",
-      type: "game", category: "Arcade classics", url: "games/tetris/index.html", maxPoints: GAME_MAX, ready: false },
+      type: "game", category: "Arcade classics", url: "games/tetris/index.html", maxPoints: GAME_MAX, ready: true },
 
     // ---- Brain games ----
     { id: "game-memory", name: "Tech Match", description: "Match our chapter & partner logos", icon: "🃏",
@@ -98,6 +98,7 @@
     // n blocks cleared = n² × combo; a decent 2-min game ≈ 800–1200 → ≈ 270–400 points
     HEXTRIS_DIVISOR: 3,
     hextris: function (score) { return cap(Math.floor(score / FORMULAS.HEXTRIS_DIVISOR)); },
+    // 10 per piece + 100/200/400/800 per 1/2/3/4 lines; a decent 2–3 min game ≈ 2500–4000 → ≈ 250–400 points
     TETRIS_DIVISOR: 10,
     tetris: function (score) { return cap(Math.floor(score / FORMULAS.TETRIS_DIVISOR)); }
   };
