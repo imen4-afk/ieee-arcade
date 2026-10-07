@@ -1,0 +1,6 @@
+/* IEEE Arcade: small overrides for Hextris (loaded after style/style.css).
+   Only colors and fonts; the game's layout and canvas sizing are untouched. */
+body, #canvas { background-color: #eef3f8; }
+body, #HIGHSCORE, #container { font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+#currentHighScore, #container { color: #002855; }
+#helpScreen { background-color: rgba(238, 243, 248, 0.98); }

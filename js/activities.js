@@ -46,7 +46,7 @@
     { id: "game-flappy", name: "Flappy Ezzdin", description: "Fly Ezzdin through the firewalls", icon: "🪽",
       type: "game", category: "Arcade classics", url: "games/flappy/index.html", maxPoints: GAME_MAX, ready: true },
     { id: "game-hextris", name: "Hextris", description: "Match colors on the spinning hexagon", icon: "⬡",
-      type: "game", category: "Arcade classics", url: "games/hextris/index.html", maxPoints: GAME_MAX, ready: false },
+      type: "game", category: "Arcade classics", url: "games/hextris/index.html", maxPoints: GAME_MAX, ready: true },
     { id: "game-tetris", name: "Tetris", description: "Stack the blocks, clear the lines", icon: "🧱",
       type: "game", category: "Arcade classics", url: "games/tetris/index.html", maxPoints: GAME_MAX, ready: false },
 
@@ -95,7 +95,8 @@
     logic: function (correct, bestStreak) { return cap(correct * 20 + bestStreak * 5); },
 
     // Hextris and Tetris: their own game score divided by a divisor (set in Phases 6 and 7)
-    HEXTRIS_DIVISOR: 10,
+    // n blocks cleared = n² × combo; a decent 2-min game ≈ 800–1200 → ≈ 270–400 points
+    HEXTRIS_DIVISOR: 3,
     hextris: function (score) { return cap(Math.floor(score / FORMULAS.HEXTRIS_DIVISOR)); },
     TETRIS_DIVISOR: 10,
     tetris: function (score) { return cap(Math.floor(score / FORMULAS.TETRIS_DIVISOR)); }

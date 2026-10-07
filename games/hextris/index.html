@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#0a0a0a">
+  <title>Hextris – IEEE Arcade</title>
+  <link rel="icon" href="../../assets/img/sb-icon.png">
+  <link rel="stylesheet" href="../../css/style.css">
+  <link rel="stylesheet" href="../../css/game-kit.css">
+  <style>
+    /* the game runs full-size inside this frame, under the arcade header */
+    .hx-main { max-width: none; padding: 0; }
+    .hx-frame { display: block; width: 100%; border: 0; background: #eef3f8; }
+    .hx-tip { margin: 6px 16px; }
+    #gk-start, #gk-end { margin: 12px 16px; }
+    @media (min-width: 560px) { #gk-start, #gk-end { max-width: 520px; margin: 12px auto; } }
+  </style>
+</head>
+<body>
+
+  <header class="topbar">
+    <a class="back-btn" href="../../index.html">← Arcade</a>
+    <span class="sb-logo">
+      <img class="logo-img" src="../../assets/img/sb-logo-white.png" alt="IEEE ISIMA Student Branch logo"
+           onerror="this.hidden = true; this.nextElementSibling.hidden = false;">
+      <span class="logo-fallback" hidden>IEEE ISIMA SB</span>
+    </span>
+    <h1 class="topbar-title">Hextris</h1>
+  </header>
+  <div class="gk-subbar" id="gk-subbar"></div>
+
+  <main class="game-main hx-main">
+    <section class="card gk-screen" id="gk-start" hidden></section>
+
+    <div id="gk-play" hidden>
+      <!-- the original Hextris (GPL-3.0) without ads/trackers: games/hextris/game.html -->
+      <iframe class="hx-frame" id="hx-frame" title="Hextris game"></iframe>
+    </div>
+
+    <section class="card gk-screen" id="gk-end" hidden></section>
+  </main>
+
+  <footer id="site-footer" class="site-footer"></footer>
+
+  <script src="../../js/config.js"></script>
+  <script src="../../js/activities.js"></script>
+  <script src="../../js/arcade.js"></script>
+  <script src="../../js/layout.js" data-root="../../"></script>
+  <script src="../../js/game-kit.js"></script>
+  <script src="hextris-arcade.js"></script>
+</body>
+</html>
