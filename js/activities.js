@@ -56,7 +56,7 @@
     { id: "game-binary", name: "Binary Blitz", description: "Flip the bits to hit the number", icon: "🔢",
       type: "game", category: "Brain games", url: "games/binary/index.html", maxPoints: GAME_MAX, ready: true },
     { id: "game-logic", name: "Logic Gates", description: "AND, OR, NOT… what comes out?", icon: "🔌",
-      type: "game", category: "Brain games", url: "games/logic/index.html", maxPoints: GAME_MAX, ready: false }
+      type: "game", category: "Brain games", url: "games/logic/index.html", maxPoints: GAME_MAX, ready: true }
   ];
 
   // ======================================================================

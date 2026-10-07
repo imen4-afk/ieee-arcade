@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#0a0a0a">
+  <title>Logic Gates – IEEE Arcade</title>
+  <link rel="icon" href="../../assets/img/sb-icon.png">
+  <link rel="stylesheet" href="../../css/style.css">
+  <link rel="stylesheet" href="../../css/game-kit.css">
+  <link rel="stylesheet" href="logic.css">
+</head>
+<body>
+
+  <header class="topbar">
+    <a class="back-btn" href="../../index.html">← Arcade</a>
+    <span class="sb-logo">
+      <img class="logo-img" src="../../assets/img/sb-logo-white.png" alt="IEEE ISIMA Student Branch logo"
+           onerror="this.hidden = true; this.nextElementSibling.hidden = false;">
+      <span class="logo-fallback" hidden>IEEE ISIMA SB</span>
+    </span>
+    <h1 class="topbar-title">Logic Gates</h1>
+  </header>
+  <div class="gk-subbar" id="gk-subbar"></div>
+
+  <main class="game-main">
+    <section class="card gk-screen" id="gk-start" hidden></section>
+
+    <div id="gk-play" hidden>
+      <div class="gk-hud">
+        <span>✅ <span id="lg-correct">0</span></span>
+        <span class="lg-streak">🔥 Streak <span id="lg-streak">0</span></span>
+        <span>⏱ <span id="lg-time">45</span>s</span>
+      </div>
+      <div class="gk-timer" aria-hidden="true"><div class="gk-timer-fill" id="lg-timer"></div></div>
+
+      <div class="card lg-card" id="lg-card">
+        <p class="lg-gate-name" id="lg-gate-name">AND</p>
+        <div class="lg-svg" id="lg-svg"></div>
+        <p class="lg-inputs" id="lg-inputs" aria-live="polite"></p>
+        <div class="lg-flash" id="lg-flash" hidden role="status"></div>
+      </div>
+
+      <p class="center lg-question">What is the output?</p>
+      <div class="lg-answers gk-touch">
+        <button type="button" class="lg-answer" id="lg-0" data-value="0">0</button>
+        <button type="button" class="lg-answer" id="lg-1" data-value="1">1</button>
+      </div>
+    </div>
+
+    <section class="card gk-screen" id="gk-end" hidden></section>
+  </main>
+
+  <footer id="site-footer" class="site-footer"></footer>
+
+  <script src="../../js/config.js"></script>
+  <script src="../../js/activities.js"></script>
+  <script src="../../js/arcade.js"></script>
+  <script src="../../js/layout.js" data-root="../../"></script>
+  <script src="../../js/game-kit.js"></script>
+  <script src="logic.js"></script>
+</body>
+</html>

@@ -1,0 +1,68 @@
+/* Logic Gates */
+.lg-streak { color: var(--orange); font-size: 1rem; }
+
+.lg-card {
+  position: relative;
+  text-align: center;
+  padding: 14px 12px 12px;
+  color: var(--night-text);
+  background-color: var(--ieee-dark);
+  background-image:
+    radial-gradient(circle at 10px 10px, rgba(0, 181, 226, 0.25) 1.5px, transparent 2px),
+    linear-gradient(90deg, rgba(0, 181, 226, 0.10) 1px, transparent 1px),
+    linear-gradient(rgba(0, 181, 226, 0.10) 1px, transparent 1px);
+  background-size: 40px 40px, 20px 20px, 20px 20px;
+  border: 0;
+  transition: box-shadow 0.2s;
+}
+.lg-card.good { box-shadow: 0 0 0 4px var(--success); }
+.lg-card.bad { box-shadow: 0 0 0 4px var(--danger); }
+.lg-gate-name { margin: 0; font-size: 1.4rem; font-weight: 900; letter-spacing: 0.08em; color: var(--orange-soft); }
+.lg-svg svg { width: 100%; max-width: 360px; height: auto; display: block; margin: 0 auto; }
+.lg-inputs { margin: 4px 0 0; font-size: 1.1rem; font-weight: 800; font-family: ui-monospace, "Cascadia Mono", Consolas, monospace; }
+.lg-question { font-weight: 800; margin: 12px 0 8px; }
+
+.lg-answers { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.lg-answer {
+  min-height: 84px;
+  border: 0;
+  border-radius: var(--radius);
+  font: inherit;
+  font-size: 2.6rem;
+  font-weight: 900;
+  font-family: ui-monospace, "Cascadia Mono", Consolas, monospace;
+  cursor: pointer;
+  touch-action: manipulation;
+  transition: transform 0.08s;
+}
+.lg-answer:active { transform: scale(0.96); }
+.lg-answer:disabled { opacity: 0.5; }
+#lg-0 { background: var(--card-2); color: var(--text); border: 2px solid var(--border); }
+#lg-1 { background: var(--grad-orange); color: var(--on-orange); }
+
+/* wrong answer: correct output + the gate's truth table */
+.lg-flash {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  border-radius: var(--radius);
+  background: rgba(10, 10, 10, 0.93);
+  color: var(--night-text);
+  padding: 10px;
+}
+.lg-flash strong { font-size: 1.15rem; color: var(--danger); }
+.lg-table { border-collapse: collapse; font-family: ui-monospace, "Cascadia Mono", Consolas, monospace; font-size: 0.95rem; }
+.lg-table th, .lg-table td { padding: 3px 10px; border: 1px solid #333; text-align: center; }
+.lg-table th { color: var(--orange-soft); }
+.lg-table tr.hl td { background: rgba(249, 156, 0, 0.3); font-weight: 900; }
+
+/* cheat sheet on the start screen */
+.lg-cheats { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-top: 8px; }
+.lg-cheat { background: var(--card-2); border-radius: var(--radius-sm); padding: 8px; text-align: center; }
+.lg-cheat b { display: block; margin-bottom: 4px; }
+.lg-cheat .lg-table { margin: 0 auto; font-size: 0.85rem; }
+.lg-cheat .lg-table th, .lg-cheat .lg-table td { border-color: var(--border); padding: 2px 8px; }
