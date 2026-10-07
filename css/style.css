@@ -146,7 +146,8 @@ img { max-width: 100%; }
 /* ---------- Hero (hub) ---------- */
 .hero {
   position: relative;
-  overflow: hidden;
+  z-index: 10;          /* the header menu opens over the cards below */
+  overflow: visible;
   color: var(--night-text);
   background-color: var(--night);
   /* faint grid + glow, like the techy hero of isima.ieee.tn */
@@ -168,7 +169,7 @@ img { max-width: 100%; }
   gap: 12px;
   margin-bottom: 22px;
 }
-.hero-nav a.nav-link {
+.hero-nav .nav-link {
   display: inline-flex;
   align-items: center;
   min-height: var(--tap);
@@ -181,7 +182,7 @@ img { max-width: 100%; }
   background: rgba(255, 255, 255, 0.08);
   border: 1px solid rgba(255, 255, 255, 0.14);
 }
-.hero-nav a.nav-link:active { transform: scale(0.97); }
+.hero-nav .nav-link:active { transform: scale(0.97); }
 
 .hero-body { display: flex; align-items: center; gap: 14px; }
 .hero-text { flex: 1; min-width: 0; }
@@ -384,9 +385,112 @@ input.is-ok { border-color: var(--success); }
 .field-hint.error { color: var(--danger); }
 .field-hint.ok { color: var(--success); }
 
-/* ---------- Join ---------- */
+/* ---------- Header menu (hub) ---------- */
+.nav-actions { position: relative; display: flex; gap: 8px; }
+.menu-btn { min-width: var(--tap); justify-content: center; font: inherit; font-size: 1.1rem; cursor: pointer; }
+.nav-menu {
+  position: absolute;
+  right: 0;
+  top: calc(100% + 8px);
+  z-index: 30;
+  min-width: 210px;
+  padding: 6px;
+  border-radius: var(--radius-sm);
+  background: var(--night-2);
+  border: 1px solid #333;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.45);
+}
+.nav-menu a, .nav-menu button {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  min-height: var(--tap);
+  padding: 8px 12px;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--night-text);
+  font: inherit;
+  font-weight: 700;
+  text-align: left;
+  text-decoration: none;
+  cursor: pointer;
+}
+.nav-menu a:active, .nav-menu button:active { background: var(--night-3); }
+.nav-menu #logout-btn { color: #fca5a5; border-top: 1px solid #333; border-radius: 0 0 8px 8px; }
+.nav-menu-user { margin: 0; padding: 6px 12px 8px; font-size: 0.82rem; color: var(--night-muted); }
+
+/* ---------- Ezzdin, the SB mascot ---------- */
+.hero-mascot-wrap { margin: 0; text-align: center; flex: 0 0 auto; }
+.hero-mascot-wrap figcaption { font-size: 0.78rem; font-weight: 800; color: var(--orange-soft); margin-top: 2px; }
+.ezzdin-says { display: flex; align-items: center; gap: 12px; margin-bottom: 14px; text-align: left; }
+.ezzdin-says img { flex: 0 0 auto; width: 56px; height: 56px; object-fit: contain; }
+.ezzdin-says p { margin: 0; }
+.ezzdin-says .greeting { margin: 0; font-size: 1.15rem; }
+.ezzdin-end { display: flex; align-items: center; justify-content: center; gap: 10px; margin: 6px 0 8px; }
+.ezzdin-end img { width: 48px; height: 48px; flex: 0 0 auto; object-fit: contain; }
+.ezzdin-end p { margin: 0; font-weight: 800; text-align: left; }
+
+/* ---------- Account screen (Create account / Log in) ---------- */
 .join-card { margin-top: -12px; position: relative; }
 .join-card form { margin-top: 14px; }
+.tabs {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4px;
+  padding: 4px;
+  margin-top: 14px;
+  border-radius: 999px;
+  background: var(--card-2);
+}
+.tab {
+  min-height: var(--tap);
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--muted);
+  font: inherit;
+  font-weight: 800;
+  cursor: pointer;
+  touch-action: manipulation;
+}
+.tab[aria-selected="true"] { background: var(--card); color: var(--text); box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12); }
+.password-field { position: relative; }
+.password-field input { padding-right: 56px; }
+.eye-btn {
+  position: absolute;
+  right: 4px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: var(--tap);
+  height: var(--tap);
+  border: 0;
+  border-radius: 10px;
+  background: transparent;
+  font-size: 1.15rem;
+  cursor: pointer;
+}
+input[type="password"] {
+  width: 100%;
+  min-height: 52px;
+  padding: 10px 14px;
+  border: 2px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--card-2);
+  color: var(--text);
+  font: inherit;
+  font-size: 1.15rem;
+}
+input[type="password"]:focus { outline: none; border-color: var(--blue-soft); }
+.form-error {
+  margin: 0 0 12px;
+  padding: 10px 12px;
+  border-radius: var(--radius-sm);
+  background: rgba(220, 38, 38, 0.12);
+  color: var(--danger);
+  font-weight: 700;
+}
+#auth-notice { margin: 12px 0 0; }
 
 /* ---------- Player panel ---------- */
 .player-panel { margin-top: -12px; position: relative; }

@@ -10,8 +10,8 @@
 
   // ---- The 8 card faces: edit this list to change the cards. ----
   // tile "dark" = white logo artwork, tile "light" = colored logo.
-  // To use the official IEEE logo instead of the mascot, add assets/img/ieee-logo.png
-  // and replace the mascot line with:
+  // To use the official IEEE logo instead of Ezzdin (our mascot), add assets/img/ieee-logo.png
+  // and replace the Ezzdin line with:
   //   { img: "ieee-logo.png", label: "IEEE", tile: "light" },
   var FACES = [
     { img: "chapters/cs.png",       label: "CS",           tile: "dark" },
@@ -19,7 +19,7 @@
     { img: "chapters/ras.png",      label: "RAS",          tile: "dark" },
     { img: "chapters/wie.png",      label: "WIE",          tile: "dark" },
     { img: "sb-logo-white.png",     label: "IEEE ISIMA SB", tile: "dark" },
-    { img: "mascot.png",            label: "Our mascot",   tile: "light" },
+    { img: "mascot.png",            label: "Ezzdin",       tile: "light" },
     { img: "partners/isima.png",    label: "ISIMA",        tile: "light" },
     { img: "partners/pepiniere.png", label: "Pépinière",   tile: "light" }
   ];

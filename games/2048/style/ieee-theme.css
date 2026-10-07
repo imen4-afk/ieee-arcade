@@ -134,6 +134,8 @@ h1.title { color: var(--text); font-size: 40px; line-height: 1.3; letter-spacing
 .arcade-result { display: flex; flex-direction: column; gap: 2px; }
 .arcade-points { font-size: 22px; font-weight: 900; color: var(--orange-soft); }
 .arcade-best { font-size: 14px; color: var(--night-muted); }
+.arcade-ezzdin { display: inline-flex; align-items: center; justify-content: center; gap: 6px; font-size: 13px; font-weight: 700; color: #fff; }
+.arcade-ezzdin img { width: 28px; height: 28px; object-fit: contain; }
 /* the original styles every link in the message as a brown button: undo that for ours */
 .game-container .game-message a.discover-link {
   background: none;
@@ -148,11 +150,16 @@ h1.title { color: var(--text); font-size: 40px; line-height: 1.3; letter-spacing
 }
 
 @media screen and (max-width: 520px) {
-  .game-container .game-message { gap: 4px; }
-  .game-container .game-message p { font-size: 26px; }
-  .arcade-points { font-size: 18px; }
+  .game-container .game-message { gap: 2px; }
+  /* the original uses !important margins on phones (90px / 30px): too tall with our extra lines */
+  .game-container .game-message p { font-size: 24px !important; height: auto !important; line-height: 1.1 !important; margin: 0 !important; }
+  .game-container .game-message .lower { margin-top: 2px !important; }
+  .arcade-points { font-size: 17px; }
+  .arcade-best { font-size: 12px; }
+  .arcade-ezzdin { font-size: 12px; }
   .game-container .game-message .lower { margin-top: 2px; }
-  .game-container .game-message a { height: 36px; line-height: 38px; }
+  .game-container .game-message a { height: 34px; line-height: 36px; }
+  .game-container .game-message a.discover-link { min-height: 40px; padding: 4px 8px; font-size: 13px; }
 }
 
 .site-footer { margin-top: 28px; }

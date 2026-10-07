@@ -3,16 +3,21 @@
  * ------------------------------------------------
  * Needs js/config.js to be loaded first.
  *
- *   IEEEArcade.getNickname()                 -> "Imen_44" or ""
- *   IEEEArcade.join("Imen_44")               -> Promise<{ ok: true } | { ok: false, error: "..." }>
- *   IEEEArcade.submitScore("game-2048", 340) -> { points: 340, best: 410, isNewBest: false }
- *                                               (saved locally at once, sent to Supabase in the background)
- *   IEEEArcade.getLocalBests()               -> { "game-2048": 410, "quiz-ieee": 1200, ... }
- *   IEEEArcade.getLeaderboard()              -> Promise<{ ok: true, rows: [...] } | { ok: false, error: "..." }>
- *   IEEEArcade.reset()                       -> clears this phone (staff only)
+ *   IEEEArcade.getNickname()                    -> "Imen_44" or "" (not logged in)
+ *   IEEEArcade.register("Imen_44", "pass")      -> Promise<{ ok: true } | { ok: false, error: "..." }>
+ *   IEEEArcade.login("Imen_44", "pass")         -> Promise<{ ok: true } | { ok: false, error: "..." }>
+ *   IEEEArcade.logout()                         -> forgets the account and local data on this phone
+ *   IEEEArcade.submitScore("game-2048", 340)    -> { points: 340, best: 410, isNewBest: false }
+ *                                                  (saved locally at once, sent to Supabase in the background)
+ *   IEEEArcade.getLocalBests()                  -> { "game-2048": 410, "quiz-ieee": 1200, ... }
+ *   IEEEArcade.getLeaderboard()                 -> Promise<{ ok: true, rows: [...] } | { ok: false, error: "..." }>
  *
- * Scores that can't be sent (bad Wi-Fi) are queued in localStorage and retried
- * on every page load, every 30 seconds, and when the phone comes back online.
+ * The session { nickname, token } comes from the Supabase register_player / login_player
+ * functions. Every score is sent with the token. Scores that can't be sent (bad Wi-Fi)
+ * are queued in localStorage together with their token, and retried on every page load,
+ * every 30 seconds, and when the phone comes back online.
+ * If the server says the token is no longer valid, the player is logged out and the
+ * "ieeearcade:loggedout" event is fired (js/layout.js then shows the login screen).
  */
 (function () {
   "use strict";
@@ -22,12 +27,12 @@
   // The id must match the ids used in the Supabase submit_score() function.
   // ======================================================================
   var ACTIVITIES = [
-    { id: "quiz-ieee",   type: "quiz", icon: "🌍", title: "IEEE 101",                     subtitle: "How well do you know IEEE?",     url: "quiz.html?set=quiz-ieee" },
-    { id: "quiz-cs",     type: "quiz", icon: "💻", title: "Computer Society & Standards", subtitle: "Wi-Fi, Ethernet, floating point…", url: "quiz.html?set=quiz-cs" },
-    { id: "quiz-sb",     type: "quiz", icon: "🎓", title: "Our Student Branch & Chapters", subtitle: "CS, CIS, RAS, WIE and our events", url: "quiz.html?set=quiz-sb" },
-    { id: "game-2048",   type: "game", icon: "🧩", title: "IEEE Journey",                 subtitle: "2048 – from Curious to IEEE Hero", url: "games/2048/index.html" },
-    { id: "game-trex",   type: "game", icon: "🐞", title: "Bug Runner",                   subtitle: "Dodge the bugs, tap to jump",      url: "games/t-rex/index.html" },
-    { id: "game-memory", type: "game", icon: "🃏", title: "Tech Match",                   subtitle: "Match our chapter & partner logos", url: "games/memory/index.html" }
+    { id: "quiz-ieee",   type: "quiz", icon: "🌍", title: "IEEE 101",                      subtitle: "How well do you know IEEE?",        url: "quiz.html?set=quiz-ieee" },
+    { id: "quiz-cs",     type: "quiz", icon: "💻", title: "Tech Basics",                   subtitle: "Easy tech questions for beginners", url: "quiz.html?set=quiz-cs" },
+    { id: "quiz-sb",     type: "quiz", icon: "🎓", title: "Our Student Branch & Chapters", subtitle: "CS, CIS, RAS, WIE and our events",  url: "quiz.html?set=quiz-sb" },
+    { id: "game-2048",   type: "game", icon: "🧩", title: "IEEE Journey",                  subtitle: "2048 – from Curious to IEEE Hero",  url: "games/2048/index.html" },
+    { id: "game-trex",   type: "game", icon: "🐞", title: "Bug Runner",                    subtitle: "Dodge the bugs, tap to jump",       url: "games/t-rex/index.html" },
+    { id: "game-memory", type: "game", icon: "🃏", title: "Tech Match",                    subtitle: "Match our chapter & partner logos", url: "games/memory/index.html" }
   ];
 
   // ======================================================================
@@ -41,7 +46,7 @@
     QUIZ_POINTS_PER_CORRECT: 100,
     QUIZ_MAX_SPEED_BONUS: 50,
 
-    // One quiz answer: 100 points + up to 50 bonus for answering fast. Wrong or timeout = 0.
+    // One quiz answer: 100 points + up to 50 bonus, proportional to the time left. Wrong or timeout = 0.
     quizAnswer: function (isCorrect, secondsLeft, secondsTotal) {
       if (!isCorrect) return 0;
       var ratio = secondsTotal > 0 ? Math.max(0, Math.min(1, secondsLeft / secondsTotal)) : 0;
@@ -67,12 +72,24 @@
   // ======================================================================
   // Settings
   // ======================================================================
-  var KEY_NICKNAME = "ieeeArcade.nickname";
-  var KEY_BESTS = "ieeeArcade.bests";
-  var KEY_QUEUE = "ieeeArcade.queue";
+  var KEY_SESSION = "ieeeArcade.session";     // { nickname, token }
+  var KEY_BESTS = "ieeeArcade.bests";         // { activityId: best points }
+  var KEY_QUEUE = "ieeeArcade.queue";         // { activityId: { score, nickname, token } }
+  var LEGACY_KEYS = ["ieeeArcade.nickname"];  // from the version without passwords
+  var GAME_KEYS = ["bestScore", "gameState"]; // saved by the original 2048 game
   var RETRY_EVERY_MS = 30000;
   var REQUEST_TIMEOUT_MS = 8000;
   var NICKNAME_PATTERN = /^[A-Za-z0-9_]{3,16}$/;
+  var MIN_PASSWORD = 4;
+
+  // Server error codes (the "message" of an HTTP 400) → friendly text
+  var ERROR_TEXT = {
+    nickname_taken: "This nickname is already taken. If it's yours, use Log in.",
+    invalid_nickname: "3–16 characters: letters, numbers or _ only.",
+    weak_password: "Password must be at least 4 characters.",
+    invalid_login: "Wrong nickname or password.",
+    unknown_activity: "This game isn't on the scoreboard."
+  };
 
   var config = window.ARCADE_CONFIG || {};
 
@@ -95,18 +112,10 @@
     } catch (e) { /* storage blocked or full: ignore */ }
   }
 
-  function readText(key) {
-    try {
-      return window.localStorage.getItem(key) || "";
-    } catch (e) {
-      return "";
-    }
-  }
-
-  function writeText(key, value) {
-    try {
-      window.localStorage.setItem(key, value);
-    } catch (e) { /* ignore */ }
+  function removeKeys(keys) {
+    keys.forEach(function (key) {
+      try { window.localStorage.removeItem(key); } catch (e) { /* ignore */ }
+    });
   }
 
   // ---------- Supabase REST helper (never throws) ----------
@@ -116,7 +125,7 @@
       !!config.SUPABASE_ANON_KEY && config.SUPABASE_ANON_KEY !== "PASTE_ANON_KEY";
   }
 
-  // Returns { ok, status, data } or { ok: false, status: 0 } when the network fails.
+  // Returns { ok, status, data, headers } or { ok: false, status: 0 } when the network fails.
   function request(method, path, body, extraHeaders) {
     if (!isConfigured()) return Promise.resolve({ ok: false, status: 0, notConfigured: true });
 
@@ -153,55 +162,86 @@
     }
   }
 
-  function networkError(result) {
-    if (result.notConfigured) return "The scoreboard isn't set up yet (missing js/config.js values).";
-    return "No connection. Check your Wi-Fi and try again.";
+  // The error code sent by our SQL functions, e.g. "nickname_taken" (or "").
+  function errorCode(result) {
+    var message = result && result.data && typeof result.data === "object" ? result.data.message : "";
+    return typeof message === "string" ? message : "";
   }
 
-  // ---------- Nickname ----------
+  function friendlyError(result) {
+    if (result.notConfigured) return "The scoreboard isn't set up yet (missing js/config.js values).";
+    if (result.status === 0) return "No connection. Check your Wi-Fi and try again.";
+    return ERROR_TEXT[errorCode(result)] || "Something went wrong. Please try again.";
+  }
+
+  // ---------- Session (nickname + token) ----------
+
+  function getSession() {
+    var s = readJSON(KEY_SESSION, null);
+    return s && typeof s.nickname === "string" && typeof s.token === "string" && s.nickname && s.token ? s : null;
+  }
 
   function getNickname() {
-    return readText(KEY_NICKNAME);
+    var s = getSession();
+    return s ? s.nickname : "";
+  }
+
+  function isLoggedIn() {
+    return !!getSession();
   }
 
   // Returns "" if the nickname is valid, otherwise a friendly message.
   function validateNickname(nickname) {
     nickname = String(nickname || "").trim();
-    if (nickname.length < 3) return "At least 3 characters, please.";
-    if (nickname.length > 16) return "16 characters maximum.";
-    if (!NICKNAME_PATTERN.test(nickname)) return "Only letters, numbers and _ (no spaces or accents).";
+    if (!NICKNAME_PATTERN.test(nickname)) return ERROR_TEXT.invalid_nickname;
     return "";
   }
 
-  // Live check while typing. Resolves { ok, available } or { ok: false, error }.
+  function validatePassword(password) {
+    return String(password || "").length >= MIN_PASSWORD ? "" : ERROR_TEXT.weak_password;
+  }
+
+  // Live check while typing on "Create account". Resolves { ok, available } or { ok: false }.
   function isNicknameAvailable(nickname) {
     nickname = String(nickname || "").trim();
     // "_" is a wildcard in ilike, so escape it to match it literally.
     var pattern = nickname.replace(/_/g, "\\_");
     return request("GET", "/rest/v1/players?select=nickname&nickname=ilike." + encodeURIComponent(pattern))
       .then(function (r) {
-        if (!r.ok) return { ok: false, error: networkError(r) };
-        return { ok: true, available: !(Array.isArray(r.data) && r.data.length > 0) };
+        if (!r.ok || !Array.isArray(r.data)) return { ok: false };
+        return { ok: true, available: r.data.length === 0 };
       });
   }
 
-  // Registers the nickname on Supabase, then saves it on this phone.
-  function join(nickname) {
+  // register_player / login_player share the same answer: [{ nickname, token }]
+  function authenticate(rpc, nickname, password) {
     nickname = String(nickname || "").trim();
-    var invalid = validateNickname(nickname);
-    if (invalid) return Promise.resolve({ ok: false, error: invalid });
-    if (getNickname()) return Promise.resolve({ ok: false, error: "You already joined as " + getNickname() + "." });
+    var problem = validateNickname(nickname) || validatePassword(password);
+    if (problem) return Promise.resolve({ ok: false, error: problem });
 
-    return request("POST", "/rest/v1/players", { nickname: nickname }, { Prefer: "return=minimal" })
+    return request("POST", "/rest/v1/rpc/" + rpc, { p_nickname: nickname, p_password: String(password) })
       .then(function (r) {
-        if (r.ok) {
-          writeText(KEY_NICKNAME, nickname);
-          return { ok: true };
-        }
-        if (r.status === 409) return { ok: false, error: "This nickname is taken, try another one." };
-        if (r.status === 0) return { ok: false, error: networkError(r) };
-        return { ok: false, error: "That nickname wasn't accepted. Try another one." };
+        var row = Array.isArray(r.data) ? r.data[0] : r.data;
+        if (!r.ok || !row || !row.token) return { ok: false, error: friendlyError(r) };
+
+        // Start clean on this phone: forget another account's local data.
+        clearLocalData();
+        writeJSON(KEY_SESSION, { nickname: String(row.nickname || nickname), token: String(row.token) });
+        return syncBestsFromServer().then(function () { return { ok: true }; });
       });
+  }
+
+  function register(nickname, password) { return authenticate("register_player", nickname, password); }
+  function login(nickname, password) { return authenticate("login_player", nickname, password); }
+
+  function clearLocalData() {
+    removeKeys([KEY_SESSION, KEY_BESTS, KEY_QUEUE].concat(LEGACY_KEYS, GAME_KEYS));
+  }
+
+  // Log out: forget the nickname, token and local scores on this phone.
+  // (Scores already on the scoreboard stay there.)
+  function logout() {
+    clearLocalData();
   }
 
   // ---------- Scores ----------
@@ -227,6 +267,26 @@
     return ACTIVITIES.reduce(function (sum, a) { return sum + (bests[a.id] || 0); }, 0);
   }
 
+  // After logging in (e.g. on a new phone): copy the player's best scores from the scoreboard.
+  function syncBestsFromServer() {
+    var nickname = getNickname();
+    if (!nickname) return Promise.resolve();
+    return getLeaderboard().then(function (result) {
+      if (!result.ok) return;
+      var row = null;
+      result.rows.forEach(function (r) {
+        if (String(r.nickname).toLowerCase() === nickname.toLowerCase()) row = r;
+      });
+      if (!row) return;
+      var bests = getLocalBests();
+      ACTIVITIES.forEach(function (a) {
+        var server = Number(row[a.id.replace(/-/g, "_")]) || 0;
+        if (server > (bests[a.id] || 0)) bests[a.id] = server;
+      });
+      writeJSON(KEY_BESTS, bests);
+    });
+  }
+
   // Saves the score locally right away and sends it in the background.
   // Returns { points, best, isNewBest } so the page can show "+340 points! Best: 410".
   function submitScore(activityId, score) {
@@ -241,10 +301,15 @@
       writeJSON(KEY_BESTS, bests);
     }
 
-    if (max && points > 0 && getNickname()) {
+    var session = getSession();
+    if (max && points > 0 && session) {
       var queue = readJSON(KEY_QUEUE, {});
-      queue[activityId] = Math.max(queue[activityId] || 0, points); // keep only the best pending score
-      writeJSON(KEY_QUEUE, queue);
+      var pending = queue[activityId];
+      // keep only the best pending score per activity (for this account)
+      if (!pending || pending.token !== session.token || points > pending.score) {
+        queue[activityId] = { score: points, nickname: session.nickname, token: session.token };
+        writeJSON(KEY_QUEUE, queue);
+      }
       flushQueue();
     }
 
@@ -254,30 +319,35 @@
   // Sends every queued score. Scores stay queued if the network fails.
   var flushing = false;
   var flushAgain = false;
-  // Status codes meaning "the server refused this score for good" (bad data, player deleted…).
+  // Status codes meaning "the server refused this score for good".
   var DROP_STATUSES = [400, 404, 409, 422];
 
+  function isValidEntry(entry) {
+    return entry && typeof entry === "object" && typeof entry.token === "string" &&
+      typeof entry.nickname === "string" && typeof entry.score === "number";
+  }
+
   function flushQueue() {
-    var nickname = getNickname();
+    if (flushing) { flushAgain = true; return Promise.resolve(); }
     var queue = readJSON(KEY_QUEUE, {});
     var ids = Object.keys(queue);
-    if (flushing) { flushAgain = true; return Promise.resolve(); }
-    if (!nickname || ids.length === 0) return Promise.resolve();
+    if (ids.length === 0) return Promise.resolve();
     flushing = true;
 
     var chain = Promise.resolve();
     ids.forEach(function (id) {
+      var entry = queue[id];
       chain = chain.then(function () {
+        if (!isValidEntry(entry)) { removeFromQueue(id, entry); return; } // old format without token
         return request("POST", "/rest/v1/rpc/submit_score", {
-          p_nickname: nickname, p_activity: id, p_score: queue[id]
+          p_nickname: entry.nickname, p_token: entry.token, p_activity: id, p_score: entry.score
         }).then(function (r) {
-          // Sent, or refused for good (e.g. player deleted by staff): remove it from the queue.
-          // Network error, wrong key or server down: keep it for the next retry.
-          if (r.ok || DROP_STATUSES.indexOf(r.status) !== -1) {
-            var current = readJSON(KEY_QUEUE, {});
-            if (current[id] === queue[id]) delete current[id]; // unless a better score was queued meanwhile
-            writeJSON(KEY_QUEUE, current);
+          if (!r.ok && errorCode(r) === "invalid_login") {
+            handleInvalidToken(entry.token);
+            return;
           }
+          // Sent, or refused for good: remove it. Network error or server down: keep it for later.
+          if (r.ok || DROP_STATUSES.indexOf(r.status) !== -1) removeFromQueue(id, entry);
         });
       });
     });
@@ -289,6 +359,30 @@
     return chain.then(done, done);
   }
 
+  function removeFromQueue(id, entry) {
+    var current = readJSON(KEY_QUEUE, {});
+    // unless a better score was queued meanwhile
+    if (JSON.stringify(current[id]) === JSON.stringify(entry)) delete current[id];
+    writeJSON(KEY_QUEUE, current);
+  }
+
+  // The server doesn't accept this token any more (password reset, player deleted…).
+  function handleInvalidToken(token) {
+    var queue = readJSON(KEY_QUEUE, {});
+    Object.keys(queue).forEach(function (id) {
+      if (!queue[id] || queue[id].token === token) delete queue[id];
+    });
+    writeJSON(KEY_QUEUE, queue);
+
+    var session = getSession();
+    if (session && session.token === token) {
+      logout();
+      try {
+        window.dispatchEvent(new CustomEvent("ieeearcade:loggedout", { detail: { reason: "invalid_login" } }));
+      } catch (e) { /* very old browser: the next page load shows the login screen anyway */ }
+    }
+  }
+
   function hasPendingScores() {
     return Object.keys(readJSON(KEY_QUEUE, {})).length > 0;
   }
@@ -298,7 +392,7 @@
   // rows: [{ nickname, total, game_2048, game_trex, game_memory, quiz_ieee, quiz_cs, quiz_sb }]
   function getLeaderboard() {
     return request("POST", "/rest/v1/rpc/get_leaderboard", {}).then(function (r) {
-      if (!r.ok || !Array.isArray(r.data)) return { ok: false, error: networkError(r) };
+      if (!r.ok || !Array.isArray(r.data)) return { ok: false, error: friendlyError(r) };
       return { ok: true, rows: r.data };
     });
   }
@@ -332,17 +426,8 @@
     });
   }
 
-  // ---------- Staff reset ----------
+  // ---------- Staff shortcut: long-press the SB logo for 3 s = log out ----------
 
-  function reset() {
-    try {
-      window.localStorage.removeItem(KEY_NICKNAME);
-      window.localStorage.removeItem(KEY_BESTS);
-      window.localStorage.removeItem(KEY_QUEUE);
-    } catch (e) { /* ignore */ }
-  }
-
-  // Long-press an element for 3 s → confirm → reset → callback. Used on the SB logo.
   function enableStaffReset(element, onReset) {
     if (!element) return;
     var HOLD_MS = 3000;
@@ -361,8 +446,8 @@
       timer = setTimeout(function () {
         timer = null;
         element.classList.remove("pressing");
-        if (window.confirm("Staff reset: forget this phone's nickname and scores?\n(Scores already on the scoreboard stay there.)")) {
-          reset();
+        if (window.confirm("Staff: log out this phone and clear its local data?\n(Scores already on the scoreboard stay there.)")) {
+          logout();
           if (onReset) onReset();
         }
       }, HOLD_MS);
@@ -373,7 +458,10 @@
     element.addEventListener("contextmenu", function (e) { e.preventDefault(); });
   }
 
-  // ---------- Background retry of queued scores ----------
+  // ---------- Start ----------
+
+  // The version without passwords stored only a nickname: that player must log in now.
+  if (!getSession()) removeKeys(LEGACY_KEYS);
 
   flushQueue();
   setInterval(flushQueue, RETRY_EVERY_MS);
@@ -383,20 +471,26 @@
     ACTIVITIES: ACTIVITIES,
     MAX_POINTS: MAX_POINTS,
     SCORING: SCORING,
+    MIN_PASSWORD: MIN_PASSWORD,
     isConfigured: isConfigured,
     getNickname: getNickname,
+    isLoggedIn: isLoggedIn,
     validateNickname: validateNickname,
+    validatePassword: validatePassword,
     isNicknameAvailable: isNicknameAvailable,
-    join: join,
+    register: register,
+    login: login,
+    logout: logout,
+    reset: logout,
     submitScore: submitScore,
     getLocalBests: getLocalBests,
     getLocalTotal: getLocalTotal,
+    syncBestsFromServer: syncBestsFromServer,
     maxPointsFor: maxPointsFor,
     hasPendingScores: hasPendingScores,
     flushQueue: flushQueue,
     getLeaderboard: getLeaderboard,
     getStats: getStats,
-    enableStaffReset: enableStaffReset,
-    reset: reset
+    enableStaffReset: enableStaffReset
   };
 })();

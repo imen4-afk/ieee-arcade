@@ -92,7 +92,7 @@
   }
 
   function secondsPerQuestion() {
-    return Number(set.timePerQuestion) > 0 ? Number(set.timePerQuestion) : 15;
+    return Number(set.timePerQuestion) > 0 ? Number(set.timePerQuestion) : 30;
   }
 
   function showIntro() {
@@ -104,7 +104,7 @@
     var maxPts = n * (Arcade.SCORING.QUIZ_POINTS_PER_CORRECT + Arcade.SCORING.QUIZ_MAX_SPEED_BONUS);
     $("quiz-rules").textContent = "📝 " + n + " questions · ⏱️ " + secondsPerQuestion() +
       " s each · ⭐ up to " + Math.min(maxPts, Arcade.maxPointsFor(set.id)) + " points";
-    $("quiz-not-joined").hidden = !!Arcade.getNickname();
+    $("quiz-not-joined").hidden = Arcade.isLoggedIn();
     show("quiz-intro");
   }
 
@@ -217,6 +217,9 @@
 
     $("result-emoji").textContent = ratio >= 0.8 ? "🏆" : ratio >= 0.5 ? "🎉" : "💪";
     $("result-title").textContent = ratio >= 0.8 ? "Amazing!" : ratio >= 0.5 ? "Well done!" : "Nice try!";
+    $("result-ezzdin").textContent = ratio >= 0.8 ? "Ezzdin says: you're a real IEEE expert!"
+      : ratio >= 0.5 ? "Ezzdin says: great job, keep going!"
+      : "Ezzdin says: play again, you'll do better!";
     $("result-correct").textContent = correctCount + " / " + questions.length + " correct answers";
     $("result-points").textContent = "+" + result.points + " points!";
     $("result-best").textContent = result.isNewBest && result.points > 0

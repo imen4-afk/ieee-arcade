@@ -1,6 +1,6 @@
 /*
  * IEEE Arcade – hub page (index.html)
- * Join screen (nickname) → hub with points, rank and the quiz/game cards.
+ * Account screen (Create account / Log in) → hub with points, rank and the quiz/game cards.
  * All data and network calls go through js/arcade.js (window.IEEEArcade).
  */
 (function () {
@@ -17,8 +17,11 @@
 
   function render() {
     var nickname = Arcade.getNickname();
-    $("join").hidden = !!nickname;
+    $("auth").hidden = !!nickname;
     $("hub").hidden = !nickname;
+    $("logout-btn").hidden = !nickname;
+    $("menu-user").hidden = !nickname;
+    $("menu-user").textContent = nickname ? "Logged in as " + nickname : "";
     if (nickname) renderHub(nickname);
   }
 
@@ -90,7 +93,6 @@
       } else {
         $("player-rank").textContent = "#" + (index + 1);
         $("player-rank-label").textContent = "of " + players + " players";
-        // The server total can be ahead of this phone (e.g. after a staff reset).
         var serverTotal = Number(rows[index].total) || 0;
         if (serverTotal > Arcade.getLocalTotal()) $("player-total").textContent = serverTotal;
       }
@@ -102,80 +104,182 @@
   }
 
   // ======================================================================
-  // Join form with live validation
+  // Account screen: two tabs sharing one form
   // ======================================================================
 
-  var input = $("nickname-input");
-  var hint = $("nickname-hint");
-  var joinBtn = $("join-btn");
+  var mode = "create"; // or "login"
+  var nickInput = $("auth-nickname");
+  var pwInput = $("auth-password");
+  var submitBtn = $("auth-submit");
   var checkTimer = null;
   var checkId = 0; // ignores answers to old checks if the visitor kept typing
 
-  function setHint(text, state) {
+  var NICK_HELP = "3–16 characters: letters, numbers or _ only.";
+  var PW_HELP = "At least " + Arcade.MIN_PASSWORD + " characters.";
+
+  function setHint(id, input, text, state) {
+    var hint = $(id);
     hint.textContent = text;
     hint.className = "field-hint" + (state ? " " + state : "");
     input.classList.toggle("is-error", state === "error");
     input.classList.toggle("is-ok", state === "ok");
   }
 
-  input.addEventListener("input", function () {
+  function showError(text) {
+    $("auth-error").textContent = text || "";
+    $("auth-error").hidden = !text;
+  }
+
+  function setMode(newMode) {
+    mode = newMode;
+    var create = mode === "create";
+    $("tab-create").setAttribute("aria-selected", create ? "true" : "false");
+    $("tab-login").setAttribute("aria-selected", create ? "false" : "true");
+    $("tab-create").tabIndex = create ? 0 : -1;
+    $("tab-login").tabIndex = create ? -1 : 0;
+    $("auth-form").setAttribute("aria-labelledby", create ? "tab-create" : "tab-login");
+    // lets password managers save a new password / fill a saved one
+    pwInput.setAttribute("autocomplete", create ? "new-password" : "current-password");
+    submitBtn.textContent = create ? "Create my account" : "Log in";
+    showError("");
+    checkNickname();
+    checkPassword();
+  }
+
+  function checkNickname() {
     clearTimeout(checkTimer);
     checkId++;
-    var nickname = input.value.trim();
+    var nickname = nickInput.value.trim();
+    if (!nickname) { setHint("nickname-hint", nickInput, NICK_HELP, ""); return; }
 
-    if (!nickname) {
-      setHint("3–16 characters: letters, numbers and _", "");
-      return;
-    }
     var problem = Arcade.validateNickname(nickname);
-    if (problem) {
-      setHint(problem, "error");
-      return;
-    }
+    if (problem) { setHint("nickname-hint", nickInput, problem, "error"); return; }
 
-    setHint("Checking…", "");
+    if (mode === "login") { setHint("nickname-hint", nickInput, NICK_HELP, "ok"); return; }
+
+    // Create account: tell right away if the nickname is free
+    setHint("nickname-hint", nickInput, "Checking…", "");
     var myId = checkId;
     checkTimer = setTimeout(function () {
       Arcade.isNicknameAvailable(nickname).then(function (r) {
         if (myId !== checkId) return; // outdated answer
-        if (!r.ok) setHint(r.error, "error");
-        else if (r.available) setHint("✓ " + nickname + " is available!", "ok");
-        else setHint("This nickname is taken, try another one.", "error");
+        if (!r.ok) setHint("nickname-hint", nickInput, NICK_HELP, "ok");
+        else if (r.available) setHint("nickname-hint", nickInput, "✓ " + nickname + " is available!", "ok");
+        else setHint("nickname-hint", nickInput, "This nickname is already taken. If it's yours, use Log in.", "error");
       });
     }, CHECK_DELAY_MS);
+  }
+
+  function checkPassword() {
+    var pw = pwInput.value;
+    if (!pw) { setHint("password-hint", pwInput, PW_HELP, ""); return; }
+    if (Arcade.validatePassword(pw)) setHint("password-hint", pwInput, PW_HELP + " (" + pw.length + "/" + Arcade.MIN_PASSWORD + ")", "error");
+    else setHint("password-hint", pwInput, "✓ Password OK", "ok");
+  }
+
+  nickInput.addEventListener("input", function () { showError(""); checkNickname(); });
+  pwInput.addEventListener("input", function () { showError(""); checkPassword(); });
+
+  $("tab-create").addEventListener("click", function () { setMode("create"); });
+  $("tab-login").addEventListener("click", function () { setMode("login"); });
+  // arrow keys move between the two tabs
+  $("auth").querySelector("[role=tablist]").addEventListener("keydown", function (e) {
+    if (e.key !== "ArrowLeft" && e.key !== "ArrowRight") return;
+    setMode(mode === "create" ? "login" : "create");
+    $(mode === "create" ? "tab-create" : "tab-login").focus();
   });
 
-  $("join-form").addEventListener("submit", function (e) {
+  // Show / hide the password
+  $("pw-toggle").addEventListener("click", function () {
+    var show = pwInput.type === "password";
+    pwInput.type = show ? "text" : "password";
+    this.setAttribute("aria-pressed", show ? "true" : "false");
+    this.setAttribute("aria-label", show ? "Hide password" : "Show password");
+    this.textContent = show ? "🙈" : "👁️";
+  });
+
+  $("auth-form").addEventListener("submit", function (e) {
     e.preventDefault();
     clearTimeout(checkTimer);
     checkId++;
-    var nickname = input.value.trim();
+    var nickname = nickInput.value.trim();
+    var password = pwInput.value;
 
-    joinBtn.disabled = true;
-    joinBtn.textContent = "Joining…";
-    Arcade.join(nickname).then(function (r) {
-      joinBtn.disabled = false;
-      joinBtn.textContent = "Join the Arcade";
+    var problem = Arcade.validateNickname(nickname) || Arcade.validatePassword(password);
+    if (problem) { showError(problem); return; }
+
+    var label = submitBtn.textContent;
+    submitBtn.disabled = true;
+    submitBtn.textContent = mode === "create" ? "Creating…" : "Logging in…";
+    var action = mode === "create" ? Arcade.register : Arcade.login;
+
+    action(nickname, password).then(function (r) {
+      submitBtn.disabled = false;
+      submitBtn.textContent = label;
       if (r.ok) {
+        pwInput.value = "";
+        $("auth-notice").hidden = true;
         render();
         window.scrollTo(0, 0);
       } else {
-        setHint(r.error, "error");
-        input.focus();
+        showError(r.error);
+        (/password/i.test(r.error) ? pwInput : nickInput).focus();
       }
     });
+  });
+
+  // ======================================================================
+  // Header menu + log out
+  // ======================================================================
+
+  var menuBtn = $("menu-btn");
+  var menu = $("nav-menu");
+
+  function closeMenu() {
+    menu.hidden = true;
+    menuBtn.setAttribute("aria-expanded", "false");
+  }
+
+  menuBtn.addEventListener("click", function (e) {
+    e.stopPropagation();
+    menu.hidden = !menu.hidden;
+    menuBtn.setAttribute("aria-expanded", menu.hidden ? "false" : "true");
+  });
+  document.addEventListener("click", function (e) {
+    if (!menu.hidden && !menu.contains(e.target)) closeMenu();
+  });
+  document.addEventListener("keydown", function (e) {
+    if (e.key === "Escape" && !menu.hidden) { closeMenu(); menuBtn.focus(); }
+  });
+
+  function showLoginScreen(message) {
+    closeMenu();
+    nickInput.value = "";
+    pwInput.value = "";
+    render();
+    setMode("login");
+    $("auth-notice").textContent = message || "";
+    $("auth-notice").hidden = !message;
+    window.scrollTo(0, 0);
+  }
+
+  $("logout-btn").addEventListener("click", function () {
+    if (!window.confirm("Log out? You can log back in any time with your nickname and password.")) return;
+    Arcade.logout();
+    showLoginScreen("You're logged out. See you soon!");
+  });
+
+  // The server refused the saved token (js/arcade.js already logged out).
+  window.addEventListener("ieeearcade:loggedout", function () {
+    showLoginScreen("Please log in again.");
   });
 
   // ======================================================================
   // Start
   // ======================================================================
 
-  Arcade.enableStaffReset($("sb-logo"), function () {
-    input.value = "";
-    setHint("3–16 characters: letters, numbers and _", "");
-    render();
-    window.scrollTo(0, 0);
-  });
+  // Staff shortcut: long-press the SB logo for 3 s = log out this phone
+  Arcade.enableStaffReset($("sb-logo"), function () { showLoginScreen(""); });
 
   // Coming back from a game with the browser's Back button may restore this
   // page from cache: refresh the scores.
@@ -189,4 +293,13 @@
   }, 5000);
 
   render();
+
+  // index.html?login=1 (sent here after the server refused the token on another page)
+  var params = new URLSearchParams(window.location.search);
+  if (params.get("login") === "1" && !Arcade.getNickname()) {
+    showLoginScreen("Please log in again.");
+    try { window.history.replaceState(null, "", window.location.pathname); } catch (e) { /* ignore */ }
+  } else if (!Arcade.getNickname()) {
+    setMode("create");
+  }
 })();

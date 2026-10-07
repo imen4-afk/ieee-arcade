@@ -71,7 +71,7 @@
     try { name = window.IEEEArcade ? window.IEEEArcade.getNickname() : ""; } catch (e) { name = ""; }
     var chips = document.querySelectorAll("[data-player-chip]");
     for (var i = 0; i < chips.length; i++) {
-      chips[i].textContent = name ? "👤 " + name : "Not joined";
+      chips[i].textContent = name ? "👤 " + name : "Not logged in";
     }
   }
 
@@ -80,6 +80,13 @@
     if (footer) buildFooter(footer);
     fillPlayerChips();
   }
+
+  // js/arcade.js fires this when the server no longer accepts the player's token:
+  // go to the hub's login screen (the hub itself handles it without reloading).
+  window.addEventListener("ieeearcade:loggedout", function () {
+    if (document.getElementById("auth")) return;
+    window.location.href = root + "index.html?login=1";
+  });
 
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", init);
   else init();

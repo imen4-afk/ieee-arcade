@@ -10,7 +10,7 @@
 </head>
 <body>
 
-  <!-- ===== Hero. Long-press the SB logo for 3 s = hidden staff reset ===== -->
+  <!-- ===== Hero. Long-press the SB logo for 3 s = staff log out ===== -->
   <header class="hero">
     <div class="hero-inner">
       <nav class="hero-nav" aria-label="Main">
@@ -19,10 +19,16 @@
                onerror="this.hidden = true; this.nextElementSibling.hidden = false;">
           <span class="logo-fallback" hidden>IEEE ISIMA SB</span>
         </span>
-        <span style="display:flex; gap:8px">
-          <a class="nav-link" href="chapters.html">Chapters</a>
+        <div class="nav-actions">
           <a class="nav-link" href="leaderboard.html">🏆 Scores</a>
-        </span>
+          <button type="button" class="nav-link menu-btn" id="menu-btn" aria-expanded="false" aria-controls="nav-menu">☰<span class="sr-only"> Menu</span></button>
+          <div class="nav-menu" id="nav-menu" hidden>
+            <p class="nav-menu-user" id="menu-user" hidden></p>
+            <a href="chapters.html">Our chapters</a>
+            <a href="leaderboard.html">Leaderboard</a>
+            <button type="button" id="logout-btn" hidden>Log out</button>
+          </div>
+        </div>
       </nav>
 
       <div class="hero-body">
@@ -31,32 +37,57 @@
           <h1>IEEE Arcade</h1>
           <p class="subtitle">IEEE ISIMA Student Branch</p>
         </div>
-        <img class="hero-mascot" src="assets/img/mascot.png" alt="" width="120" height="120"
-             onerror="this.hidden = true;">
+        <figure class="hero-mascot-wrap">
+          <img class="hero-mascot" src="assets/img/mascot.png" alt="Ezzdin, the IEEE ISIMA SB mascot" width="120" height="120"
+               onerror="this.hidden = true;">
+          <figcaption>Meet Ezzdin!</figcaption>
+        </figure>
       </div>
     </div>
   </header>
 
   <main class="container">
 
-    <!-- ===== Join screen (no nickname yet) ===== -->
-    <section id="join" class="card join-card" hidden>
+    <!-- ===== Account screen: create an account or log in ===== -->
+    <section id="auth" class="card join-card" hidden>
       <h2>Welcome! 👋</h2>
       <p>Play quizzes and mini-games, collect points and climb the live scoreboard at our stand.</p>
-      <form id="join-form" autocomplete="off" novalidate>
-        <label for="nickname-input">Choose your nickname</label>
-        <input id="nickname-input" type="text" maxlength="16" placeholder="e.g. Ezzdin"
+
+      <div class="tabs" role="tablist" aria-label="Account">
+        <button type="button" role="tab" class="tab" id="tab-create" aria-selected="true" aria-controls="auth-form">Create account</button>
+        <button type="button" role="tab" class="tab" id="tab-login" aria-selected="false" aria-controls="auth-form" tabindex="-1">Log in</button>
+      </div>
+
+      <p class="notice" id="auth-notice" hidden></p>
+
+      <form id="auth-form" role="tabpanel" aria-labelledby="tab-create" novalidate>
+        <label for="auth-nickname">Nickname</label>
+        <input id="auth-nickname" name="username" type="text" maxlength="16" placeholder="e.g. Ezzdin" autocomplete="username"
                autocapitalize="off" autocorrect="off" spellcheck="false" aria-describedby="nickname-hint">
-        <p class="field-hint" id="nickname-hint" aria-live="polite">3–16 characters: letters, numbers and _</p>
-        <button type="submit" class="btn btn-primary btn-block btn-lg" id="join-btn">Join the Arcade</button>
+        <p class="field-hint" id="nickname-hint" aria-live="polite">3–16 characters: letters, numbers or _ only.</p>
+
+        <label for="auth-password">Password</label>
+        <div class="password-field">
+          <input id="auth-password" name="password" type="password" maxlength="64" autocomplete="new-password"
+                 autocapitalize="off" autocorrect="off" spellcheck="false" aria-describedby="password-hint">
+          <button type="button" class="eye-btn" id="pw-toggle" aria-label="Show password" aria-pressed="false">👁️</button>
+        </div>
+        <p class="field-hint" id="password-hint" aria-live="polite">At least 4 characters.</p>
+
+        <p class="form-error" id="auth-error" role="alert" hidden></p>
+        <button type="submit" class="btn btn-primary btn-block btn-lg" id="auth-submit">Create my account</button>
       </form>
-      <p class="small" style="margin:12px 0 0">Your nickname appears on the public scoreboard and can't be changed later.</p>
+      <p class="small" style="margin:12px 0 0">Don't reuse an important password. Forgot it? Ask a committee member at the stand.</p>
+      <p class="small" style="margin:6px 0 0">Your nickname appears on the public scoreboard.</p>
     </section>
 
-    <!-- ===== Player panel + activities (joined) ===== -->
+    <!-- ===== Player panel + activities (logged in) ===== -->
     <div id="hub" hidden>
       <section class="card player-panel" aria-label="Your score">
-        <p class="greeting">Hi <strong id="player-name"></strong>!</p>
+        <div class="ezzdin-says">
+          <img src="assets/img/mascot.png" alt="Ezzdin, the IEEE ISIMA SB mascot" width="56" height="56" onerror="this.hidden = true;">
+          <p class="greeting">Ezzdin says: Hi <strong id="player-name"></strong>!</p>
+        </div>
         <div class="stats">
           <div class="stat">
             <span class="stat-value" id="player-total">0</span>
@@ -122,11 +153,11 @@
       <div class="home-grid">
         <div class="card home-item" style="margin:0">
           <span class="logo-tile light"><img src="assets/img/partners/isima.png" alt="ISIMA logo" onerror="this.replaceWith('ISIMA')"></span>
-          <p><strong>ISIMA</strong>Higher Institute of Computer Science of Mahdia, established in 2004, affiliated with the University of Monastir.</p>
+          <p><strong>ISIMA</strong>Higher Institute of Computer Science of Mahdia</p>
         </div>
         <div class="card home-item" style="margin:0">
           <span class="logo-tile light"><img src="assets/img/partners/pepiniere.png" alt="Pépinière d'entreprises de Mahdia logo" onerror="this.replaceWith('Pépinière')"></span>
-          <p><strong>Pépinière d'entreprises de Mahdia</strong>Business incubator and partner of our Student Branch.</p>
+          <p><strong>Pépinière d'entreprises de Mahdia</strong></p>
         </div>
       </div>
     </section>
@@ -165,8 +196,7 @@
           <li><span class="ico" aria-hidden="true">📸</span><a href="https://www.instagram.com/ieee.isima.sb/" target="_blank" rel="noopener">Instagram: @ieee.isima.sb</a></li>
           <li><span class="ico" aria-hidden="true">💼</span><a href="https://www.linkedin.com/company/ieee-isima-sb/" target="_blank" rel="noopener">LinkedIn: IEEE ISIMA SB</a></li>
           <li><span class="ico" aria-hidden="true">✉️</span><span>ieee.sb.isima@gmail.com <a href="mailto:ieee.sb.isima@gmail.com">(write)</a></span></li>
-          <li><span class="ico" aria-hidden="true">📍</span><span>IEEE room at ISIMA, Route de Réjiche, Mahdia 5100</span></li>
-          <li><span class="ico" aria-hidden="true">🕗</span><span>Open Monday–Friday, 08:00–18:00</span></li>
+          <li><span class="ico" aria-hidden="true">📍</span><span>IEEE room at ISIMA, Monday–Friday 08:00–18:00</span></li>
         </ul>
       </div>
     </section>
@@ -180,8 +210,7 @@
             <a href="https://github.com/gabrielecirulli/2048" target="_blank" rel="noopener">2048</a> by Gabriele Cirulli (MIT License).</li>
           <li><strong>Bug Runner</strong> is based on
             <a href="https://github.com/wayou/t-rex-runner" target="_blank" rel="noopener">T-Rex Runner</a> by wayou, extracted from Chromium (BSD 3-Clause License).</li>
-          <li>Mascot from <a href="https://github.com/microsoft/fluentui-emoji" target="_blank" rel="noopener">Microsoft Fluent Emoji</a> ("technologist"), animated version from
-            <a href="https://github.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis" target="_blank" rel="noopener">Animated Fluent Emojis</a>.</li>
+          <li>Ezzdin is the IEEE ISIMA SB mascot.</li>
           <li>Design inspired by <a href="https://isima.ieee.tn/" target="_blank" rel="noopener">isima.ieee.tn</a>.</li>
           <li>IEEE, IEEE society and chapter logos are trademarks of IEEE.</li>
         </ul>

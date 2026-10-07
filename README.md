@@ -1,8 +1,8 @@
 # IEEE Arcade
 
-Mini-games and quizzes for the **IEEE ISIMA Student Branch** stand at ISIMA's integration day.
-Visitors scan a QR code, pick a nickname, play on their phone, and appear on a live scoreboard
-shown on a big screen at the stand.
+Mini-games and quizzes for the **IEEE ISIMA Student Branch** stand at the integration day.
+Visitors scan a QR code, create an account (nickname + password), play on their phone, and appear
+on a live scoreboard shown on a big screen at the stand.
 
 Live site: https://ieee-arcade.vercel.app
 
@@ -14,7 +14,7 @@ Live site: https://ieee-arcade.vercel.app
 
 | Page | What it is |
 | --- | --- |
-| `index.html` | Hub: join with a nickname, points and rank, quiz and game cards, Student Branch info |
+| `index.html` | Hub: create an account / log in, points and rank, quiz and game cards, Student Branch info |
 | `chapters.html` | Our 4 chapters and affinity group (CS, CIS, RAS, WIE) |
 | `quiz.html?set=quiz-ieee` | Quiz engine (also `quiz-cs`, `quiz-sb`) |
 | `leaderboard.html` | Top 50 on the phone |
@@ -42,7 +42,16 @@ meant to be public: the database rules only allow reading, joining and submittin
 To remove a player (e.g. an inappropriate nickname): Supabase dashboard → Table Editor → `players` → delete the row
 (their scores are deleted with it).
 
-**Staff reset of a demo phone:** long-press the Student Branch logo on the hub for 3 seconds, then confirm.
+## Accounts
+
+- Players create an account with a **nickname + password** (Supabase functions `register_player` / `login_player`).
+  Both return a token; the phone stores `{ nickname, token }` and sends the token with every score (`submit_score`).
+- Logging in on another phone loads the player's best scores from the scoreboard.
+- Scores waiting for Wi-Fi are queued **with their token**. If the server answers `invalid_login`
+  (e.g. the player was deleted), the phone logs out and shows the login screen.
+- **Log out:** hub → ☰ menu → Log out. Staff can also long-press the Student Branch logo for 3 seconds
+  (useful to reuse a demo phone). Logging out clears the nickname, token and local scores on that phone only.
+- Forgotten password: players ask a committee member at the stand.
 
 ## Add or edit quiz questions
 
@@ -55,6 +64,9 @@ Edit `data/quiz.json` (no code changes needed):
 - `answer` is the **index** of the correct option, starting at 0 (`1` = "B" above).
 - True/false questions: just use 2 options, e.g. `["True", "False"]`.
 - Each run picks 10 random questions from the set, and options are shuffled automatically.
+- `timePerQuestion` is in seconds (30 in every set). The speed bonus is proportional to the time left.
+- Sets: `quiz-ieee` (IEEE 101), `quiz-cs` (**Tech Basics**, beginner-friendly), `quiz-sb` (Our Student Branch & Chapters).
+  Keep the ids: the scoreboard depends on them. Quizzes never ask about ISIMA or our partners.
 - Check your JSON at https://jsonlint.com before committing: one missing comma breaks the whole file.
   Invalid questions (e.g. `answer` out of range) are skipped and reported in the browser console.
 
@@ -76,7 +88,7 @@ Only each player's **best** score per activity counts.
 
 - **Student Branch links** (footer on every page): `js/layout.js`, the `SB` object.
 - **Tile labels in IEEE Journey**: `games/2048/js/ieee_arcade.js`, `TILE_LABELS`.
-- **Tech Match cards**: `games/memory/memory.js`, `FACES`. One slot uses the SB mascot because
+- **Tech Match cards**: `games/memory/memory.js`, `FACES`. One slot uses Ezzdin (our mascot) because
   `assets/img/ieee-logo.png` is not in the repo yet; the comment there explains how to switch.
 - **Dashboard QR code**: `assets/img/qr.png` (points to https://ieee-arcade.vercel.app/).
 - **Colors**: CSS variables at the top of `css/style.css` (palette inspired by isima.ieee.tn).
@@ -88,7 +100,6 @@ white artwork, so they always sit on dark tiles.
 
 - **IEEE Journey** is based on [2048](https://github.com/gabrielecirulli/2048) by Gabriele Cirulli (MIT License, `games/2048/LICENSE.txt`).
 - **Bug Runner** is based on [T-Rex Runner](https://github.com/wayou/t-rex-runner) by wayou, extracted from Chromium (BSD 3-Clause License, `games/t-rex/LICENSE`).
-- Mascot from [Microsoft Fluent Emoji](https://github.com/microsoft/fluentui-emoji) ("technologist"); the animated
-  version on the dashboard comes from [Animated Fluent Emojis](https://github.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis).
+- Ezzdin is the IEEE ISIMA SB mascot (`assets/img/mascot.png`).
 - Design inspired by [isima.ieee.tn](https://isima.ieee.tn/).
 - IEEE, IEEE society and chapter logos are trademarks of IEEE.
