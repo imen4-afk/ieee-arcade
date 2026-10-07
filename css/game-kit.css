@@ -1,0 +1,91 @@
+/* IEEE Arcade – shared styles for the new games (js/game-kit.js). Loads after css/style.css. */
+
+.gk-subbar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 12px;
+  background: var(--card);
+  border-bottom: 1px solid var(--border);
+  font-size: 0.85rem;
+}
+.gk-chip {
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: var(--card-2);
+  font-weight: 700;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 45%;
+}
+.gk-best { color: var(--orange); }
+.gk-sound {
+  margin-left: auto;
+  width: var(--tap);
+  height: var(--tap);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--card-2);
+  font-size: 1.1rem;
+  cursor: pointer;
+  touch-action: manipulation;
+}
+
+.game-main { max-width: 520px; margin: 0 auto; padding: 12px 16px 8px; }
+
+.gk-screen { text-align: center; margin-top: 8px; }
+.gk-mascot { width: 96px; height: 96px; object-fit: contain; display: block; margin: 0 auto 4px; }
+.gk-title { font-size: 1.5rem; margin: 4px 0 6px; }
+.gk-instructions { font-size: 1.05rem; font-weight: 600; }
+.gk-play-btn { margin-top: 12px; font-size: 1.25rem; }
+.gk-score { font-size: 1.1rem; font-weight: 800; margin: 0; }
+.gk-best-line { color: var(--muted); }
+.gk-screen .btn-row { margin-top: 14px; }
+.gk-screen .notice { margin-top: 12px; }
+.gk-help { text-align: left; margin: 10px 0 0; }
+.gk-help summary { cursor: pointer; font-weight: 800; min-height: var(--tap); display: flex; align-items: center; }
+
+/* HUD above the play area: score, timer */
+.gk-hud {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  margin: 4px 2px 8px;
+  font-weight: 900;
+  font-size: 1.1rem;
+  font-variant-numeric: tabular-nums;
+}
+.gk-timer { height: 10px; border-radius: 999px; background: var(--card-2); overflow: hidden; margin-bottom: 12px; }
+.gk-timer-fill {
+  height: 100%;
+  width: 100%;
+  background: var(--grad-brand);
+  transform-origin: left center;
+  will-change: transform;
+}
+.gk-timer-fill.hurry { background: var(--grad-orange); }
+
+/* the play area must not scroll or zoom while playing */
+.gk-touch { touch-action: none; -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; }
+
+/* small "+10" pop-ups */
+.gk-float {
+  position: absolute;
+  pointer-events: none;
+  font-weight: 900;
+  font-size: 1.2rem;
+  animation: gk-float 0.8s ease-out forwards;
+  text-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
+  white-space: nowrap;
+  z-index: 5;
+}
+.gk-float.good { color: var(--success); }
+.gk-float.gold { color: var(--orange-soft); }
+.gk-float.bad { color: var(--danger); }
+@keyframes gk-float { to { transform: translateY(-36px); opacity: 0; } }
+
+@media (prefers-reduced-motion: reduce) {
+  .gk-float { animation: none; opacity: 0.9; }
+}
