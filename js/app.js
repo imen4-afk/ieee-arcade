@@ -35,7 +35,7 @@
 
   function loadNextEvent() {
     if (!window.IEEEEvents || !window.IEEEEventFormat) return;
-    window.IEEEEvents.fetchUpcoming(1).then(function (r) {
+    window.IEEEEvents.loadUpcoming().then(function (r) {
       if (!r.ok || !r.events.length) return;
       var ev = r.events[0];
       $("events-card-next").textContent = "Next: " + ev.title + " · " + window.IEEEEventFormat.shortText(ev);
@@ -127,16 +127,6 @@
   var mode = "create"; // or "login"
   var nickInput = $("auth-nickname");
   var pwInput = $("auth-password");
-  var emailInput = $("auth-email");
-  var consentBox = $("auth-consent-box");
-
-  // Email + consent are shown on both tabs, except on "Log in" when the typed
-  // nickname already subscribed on this phone.
-  function updateReminderFields() {
-    var Sub = window.IEEESubscribe;
-    var alreadySubscribed = mode === "login" && !!Sub && Sub.isSubscribed(nickInput.value.trim());
-    $("auth-reminders").hidden = !Sub || alreadySubscribed;
-  }
   var submitBtn = $("auth-submit");
   var checkTimer = null;
   var checkId = 0; // ignores answers to old checks if the visitor kept typing
@@ -167,9 +157,7 @@
     $("auth-form").setAttribute("aria-labelledby", create ? "tab-create" : "tab-login");
     // lets password managers save a new password / fill a saved one
     pwInput.setAttribute("autocomplete", create ? "new-password" : "current-password");
-    submitBtn.textContent = create ? "Create my account" : "Log in";
-    updateReminderFields();
-    showError("");
+    submitBtn.textContent = create ? "Create my account" : "Log in";    showError("");
     checkNickname();
     checkPassword();
   }
@@ -205,9 +193,7 @@
     else setHint("password-hint", pwInput, "✓ Password OK", "ok");
   }
 
-  nickInput.addEventListener("input", function () { showError(""); checkNickname(); updateReminderFields(); });
-  emailInput.addEventListener("input", function () { showError(""); });
-  consentBox.addEventListener("change", function () { showError(""); });
+  nickInput.addEventListener("input", function () { showError(""); checkNickname(); });
   pwInput.addEventListener("input", function () { showError(""); checkPassword(); });
 
   $("tab-create").addEventListener("click", function () { setMode("create"); });
@@ -238,39 +224,18 @@
     var problem = Arcade.validateNickname(nickname) || Arcade.validatePassword(password);
     if (problem) { showError(problem); return; }
 
-    // Optional email for reminders (both tabs): empty, or valid + consent ticked.
-    var Sub = window.IEEESubscribe;
-    var askEmail = !!Sub && !$("auth-reminders").hidden;
-    var email = askEmail ? emailInput.value.trim() : "";
-    var consent = askEmail && consentBox.checked;
-    if (email && !Sub.isValidEmail(email)) { showError(Sub.MESSAGES.invalid); emailInput.focus(); return; }
-    if (email && !consent) { showError("Please tick the box to receive reminders"); consentBox.focus(); return; }
-    if (consent && !email) { showError("Please enter your email to receive reminders (or untick the box)."); emailInput.focus(); return; }
-
     var label = submitBtn.textContent;
     submitBtn.disabled = true;
     submitBtn.textContent = mode === "create" ? "Creating…" : "Logging in…";
     var action = mode === "create" ? Arcade.register : Arcade.login;
-    var emailSaved = true;
 
     action(nickname, password).then(function (r) {
-      if (!r.ok || !email) return r;
-      // Logged in: now save the email. If this fails the login still succeeds,
-      // the player just sees a small warning on the hub.
-      return Sub.subscribe(email, Arcade.getNickname()).then(function (s) {
-        emailSaved = s.ok;
-        return r;
-      });
-    }).then(function (r) {
       submitBtn.disabled = false;
       submitBtn.textContent = label;
       if (r.ok) {
         pwInput.value = "";
-        emailInput.value = "";
-        consentBox.checked = false;
         $("auth-notice").hidden = true;
         render();
-        $("email-warning").hidden = emailSaved;
         window.scrollTo(0, 0);
       } else {
         showError(r.error);

@@ -22,8 +22,8 @@
   </header>
 
   <main class="container" id="events-page">
-    <h2 class="section-title">Upcoming events this month</h2>
-    <p class="section-lead"><span class="tag">📅 <span id="month-label"></span></span></p>
+    <h2 class="section-title" id="month-title">Upcoming events</h2>
+    <p class="section-lead"><span class="tag">📅 This month</span></p>
 
     <p class="small" id="events-status" aria-live="polite">Loading events…</p>
     <div class="event-list" id="events-month"></div>
@@ -39,8 +39,6 @@
       <h2 class="section-title" id="later-title">Coming later</h2>
       <div class="event-list compact" id="events-later"></div>
     </section>
-
-    <p class="center small events-footer-links"><a href="unsubscribe.html">Unsubscribe from reminders</a></p>
   </main>
 
   <footer id="site-footer" class="site-footer"></footer>
@@ -48,6 +46,7 @@
   <script src="js/config.js"></script>
   <script src="js/arcade.js"></script>
   <script src="js/layout.js" data-root=""></script>
+  <!-- events come from data/events.json (no database) -->
   <script src="js/events-format.js"></script>
   <script src="js/events.js"></script>
   <script src="js/events-page.js"></script>

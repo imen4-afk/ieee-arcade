@@ -166,11 +166,11 @@
     fsBtn.style.opacity = document.fullscreenElement ? "0.25" : "1";
   });
 
-  // ---------- Next event (public, published events) ----------
+  // ---------- Next event (from data/events.json) ----------
 
   function refreshNextEvent() {
     if (!window.IEEEEvents || !window.IEEEEventFormat) return;
-    window.IEEEEvents.fetchUpcoming(1).then(function (r) {
+    window.IEEEEvents.loadUpcoming().then(function (r) { // from data/events.json
       var ev = r.ok && r.events[0];
       $("dash-next").hidden = !ev;
       if (ev) {

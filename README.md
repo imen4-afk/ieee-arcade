@@ -22,9 +22,7 @@ Live site: https://ieee-arcade.vercel.app
 | `games/2048/` | **IEEE Journey** (2048 reskin) |
 | `games/t-rex/` | **Ezzdin 101** (T-Rex runner reskin) |
 | `games/memory/` | **Tech Match** (memory game with our chapter and partner logos) |
-| `events.html` | Upcoming events this month (+ the next 3), all-day / multi-day events, Google Calendar links |
-| `unsubscribe.html` | Stop event reminders |
-| `admin/` | **Admin space** (events, subscribers, reminder emails). Not linked from any page. |
+| `events.html` | Upcoming events (from `data/events.json`): this month + the next 3, Google Calendar links |
 
 ## Run it locally
 
@@ -56,52 +54,47 @@ To remove a player (e.g. an inappropriate nickname): Supabase dashboard → Tabl
   (useful to reuse a demo phone). Logging out clears the nickname, token and local scores on that phone only.
 - Forgotten password: players ask a committee member at the stand.
 
-## Managing events and reminders
+## Events (`data/events.json`)
 
-### The admin space
-Open **https://ieee-arcade.vercel.app/admin/** (locally: http://localhost:3000/admin/) and log in with an
-admin email + password. The admin space is a separate folder (`admin/`) that doesn't use the player accounts.
+The events page, the hub card and the dashboard's "Next event" line read **`data/events.json`**: edit this
+file by hand, commit and push (no database). The page loads it without cache, so changes show up after
+Vercel's redeploy. Check the JSON at https://jsonlint.com before pushing: one missing comma and the page
+shows "the events couldn't be loaded" (the exact error is in the browser console).
 
-**Security:** the real protection is **Supabase Auth + the database rules (RLS)**: without an admin
-login, nobody can read the subscribers or change events, even if they find the page. Hiding the page
-(not linked anywhere, `noindex`, `robots.txt`, extra headers in `vercel.json`) is only an extra layer.
-The admin session is kept in the tab only (`sessionStorage`) and ends after 30 minutes of inactivity.
+```json
+{
+  "events": [
+    {
+      "title": "IEEEXtreme",
+      "start": "2026-10-30",
+      "end": "2026-10-31",
+      "time": "",
+      "location": "",
+      "chapter": "SB",
+      "description": "24-hour global programming competition…",
+      "link": ""
+    }
+  ]
+}
+```
 
-**Never use the `service_role` / secret key** (`sb_secret_...`) in the site, the admin page or this repo.
-Everything runs with the public anon key from `js/config.js` + the admin's login.
+| Field | Rules |
+| --- | --- |
+| `title` | Required. |
+| `start` | Required, `"YYYY-MM-DD"` (Tunis calendar day). |
+| `end` | Optional `"YYYY-MM-DD"`, defaults to `start`. Use it for events over several days. |
+| `time` | Optional free text, e.g. `"14:00–17:00"`. Empty = **All day**. |
+| `location` | Optional. Empty = the location line is hidden. |
+| `chapter` | One of `SB`, `CS`, `CIS`, `RAS`, `WIE` (shows that chapter's logo; anything else shows the SB logo). |
+| `description` | Optional. |
+| `link` | Optional registration link, must start with `https://`. Empty = no Register button. |
 
-### Add an admin (Supabase dashboard)
-1. **Authentication → Users → Add user → Create new user**: enter the email and a strong password
-   (tick "Auto Confirm User"). Sign-ups are disabled, so this is the only way to create an account.
-2. **Table Editor → `admins` → Insert row**: put that user's id (copy the "UID" from the Users list).
-3. The person can now log in at `/admin/`. To remove an admin, delete their row in `admins`
-   (and the user in Authentication if they should not log in at all).
-
-### Add or edit events
-Admin → **📅 Events**: fill in the title, date and start time (Tunis time), optional end time, location,
-chapter (SB / CS / CIS / RAS / WIE), optional registration link (`https://` only) and **Published**.
-Drafts (Published unticked) are invisible on the public page. Use **Edit**, **Duplicate** (to copy an event
-into the form) or **Delete** on each event. The public page `events.html` and the dashboard update by themselves.
-
-**All-day events** (e.g. IEEE Day, IEEEXtreme): tick **All day**, choose the first day and, for an event over
-several days, the last day. They're saved as first day 00:00 → last day 23:59 (Tunis time) with `all_day = true`,
-and shown as "All day" or as a date range ("Fri 30 – Sat 31 October"). An event stays on the public page until
-it has ended, with a "Happening now" label while it's running. Date formatting for the cards, the hub and the
-dashboard lives in one file: `js/events-format.js`.
-
-### Send a reminder
-1. Admin → **✉️ Reminders** → choose the event: the subject and body are generated (with the unsubscribe link).
-2. **Open in Gmail** (or copy the subject and body into your email app).
-3. **Copy BCC list** and paste it into the **Bcc** field, **never in To or CC**, so subscribers can't see
-   each other's addresses. Put your own address in To.
-
-**Where the emails come from:** only from the join screen. Under the password, both tabs ("Create account"
-and "Log in") have an optional email field and an unticked consent checkbox; the email is saved (RPC
-`subscribe_email`) only after a successful register/login and only with the box ticked. Each phone remembers
-which nicknames already subscribed ("subscribed:{nickname}") and then hides the email field on "Log in".
-The subscribers list (Admin → **📬 Subscribers**) therefore shows only people who ticked the consent box.
-They can stop at any time on `unsubscribe.html` (linked at the bottom of `events.html`). Emails are never
-stored on players' phones, never logged, and never shown on the scoreboard.
+- Only events whose **end date is today or later** are shown, sorted by start date. Past events disappear
+  by themselves, so there's no need to delete them right away.
+- **This month** = events overlapping the current month; **Coming later** = the next 3 after it.
+- Labels: "Happening now", "Today", "Tomorrow", "This week". "Add to Google Calendar" creates an all-day
+  event (or a timed one when `time` looks like `14:00–17:00`).
+- All date formatting lives in one file: `js/events-format.js`.
 
 ## Add or edit quiz questions
 

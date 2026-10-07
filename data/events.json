@@ -1,0 +1,24 @@
+{
+  "events": [
+    {
+      "title": "IEEE Day",
+      "start": "2026-10-17",
+      "end": "2026-10-17",
+      "time": "",
+      "location": "",
+      "chapter": "SB",
+      "description": "IEEE Day celebrates the first gathering of IEEE's founders in 1884. Join IEEE ISIMA SB to celebrate with activities, games and the IEEE community!",
+      "link": ""
+    },
+    {
+      "title": "IEEEXtreme",
+      "start": "2026-10-30",
+      "end": "2026-10-31",
+      "time": "",
+      "location": "",
+      "chapter": "SB",
+      "description": "IEEEXtreme is a 24-hour global programming competition where teams of IEEE student members solve a set of programming problems. Form your team and take the challenge with IEEE ISIMA SB!",
+      "link": ""
+    }
+  ]
+}

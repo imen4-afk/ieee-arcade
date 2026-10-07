@@ -1,8 +1,8 @@
 /*
  * IEEE Arcade – events.html
- * Events of the current month (Africa/Tunis) that haven't ended yet + the next 3 after it.
- * Dates come from js/events-format.js (shared with the hub and the dashboard).
- * Every text from the database is inserted with textContent (never innerHTML).
+ * Events from data/events.json: "This month" (events overlapping the current month)
+ * and "Coming later" (the next 3 after this month). Dates: js/events-format.js.
+ * Every text from the JSON file is inserted with textContent (never innerHTML).
  */
 (function () {
   "use strict";
@@ -21,8 +21,7 @@
   }
 
   function chapterBadge(code) {
-    var known = !!Events.CHAPTERS[code];
-    var chapter = Events.CHAPTERS[known ? code : "SB"];
+    var chapter = Events.CHAPTERS[code];
     var badge = el("span", "chapter-badge");
     var tile = el("span", "chapter-badge-logo");
     var img = document.createElement("img");
@@ -31,14 +30,13 @@
     img.addEventListener("error", function () { img.hidden = true; });
     tile.appendChild(img);
     badge.appendChild(tile);
-    badge.appendChild(el("span", "", (known ? code : "SB") + " · " + chapter.name));
+    badge.appendChild(el("span", "", code + " · " + chapter.name));
     return badge;
   }
 
   function eventCard(ev) {
     var card = el("article", "card event-card");
 
-    // Date block: "17 / OCT / Sat" or "30–31 / OCT / Fri–Sat"
     var block = Format.dateBlock(ev);
     var date = el("div", "event-date" + (Format.isMultiDay(ev) ? " range" : ""));
     date.setAttribute("aria-hidden", "true");
@@ -57,16 +55,16 @@
 
     var meta = el("p", "event-meta");
     meta.appendChild(el("span", "", "🗓️ " + Format.whenText(ev)));
-    if (ev.location && String(ev.location).trim()) meta.appendChild(el("span", "", "📍 " + ev.location));
+    if (ev.location) meta.appendChild(el("span", "", "📍 " + ev.location));
     body.appendChild(meta);
 
     body.appendChild(chapterBadge(ev.chapter));
     if (ev.description) body.appendChild(el("p", "event-desc", ev.description));
 
     var actions = el("div", "btn-row event-actions");
-    if (Events.isSafeUrl(ev.register_url)) {
+    if (ev.link) {
       var reg = el("a", "btn btn-primary", "Register ↗");
-      reg.href = ev.register_url;
+      reg.href = ev.link;
       reg.target = "_blank";
       reg.rel = "noopener";
       actions.appendChild(reg);
@@ -83,11 +81,10 @@
   }
 
   function render(events) {
-    var now = new Date();
-    // "This month" = starts this month, or already started and still running (e.g. a multi-day event)
-    var inMonth = function (ev) { return Format.sameMonth(ev.starts_at, now) || new Date(ev.starts_at) <= now; };
-    var thisMonth = events.filter(inMonth);
-    var later = events.filter(function (ev) { return !inMonth(ev); }).slice(0, LATER_COUNT);
+    var month = Format.monthRange(Format.today());
+    // overlapping the current month (events are already "end today or later")
+    var thisMonth = events.filter(function (ev) { return ev.startDay <= month.last && ev.endDay >= month.first; });
+    var later = events.filter(function (ev) { return ev.startDay > month.last; }).slice(0, LATER_COUNT);
 
     var list = $("events-month");
     list.innerHTML = "";
@@ -100,11 +97,12 @@
     $("later-section").hidden = later.length === 0;
   }
 
-  $("month-label").textContent = Format.monthLabel(new Date());
+  $("month-title").textContent = "Upcoming events — " + Format.monthLabel(Format.today());
 
-  Events.fetchUpcoming(100).then(function (result) {
+  Events.loadUpcoming().then(function (result) {
     if (!result.ok) {
-      $("events-status").textContent = "⚠️ Events couldn't be loaded. Check your connection and try again.";
+      $("events-status").textContent = "⚠️ Sorry, the events couldn't be loaded right now. Please try again later.";
+      $("events-status").classList.add("events-error");
       return;
     }
     $("events-status").hidden = true;
