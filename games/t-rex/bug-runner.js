@@ -3,7 +3,7 @@
  * index.js calls:
  *   BugRunner.drawRunner(ctx, trex)  every frame: draws Ezzdin instead of the dino
  *   BugRunner.onGameOver(distance)   when the runner crashes
- * Points: IEEEArcade.SCORING.trex(distance) in js/arcade.js.
+ * Points: IEEEArcade.SCORING.trex(distance) (formulas in js/activities.js).
  */
 window.BugRunner = (function () {
   "use strict";

@@ -115,7 +115,7 @@ Edit `data/quiz.json` (no code changes needed):
 
 ## Scoring
 
-All formulas are in one place: the `SCORING` block at the top of `js/arcade.js`.
+All formulas are in one place: `FORMULAS` in `js/activities.js` (the registry of every game and quiz).
 Keep the caps in sync with the Supabase `submit_score()` function.
 
 | Activity | Points | Max |

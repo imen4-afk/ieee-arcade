@@ -12,11 +12,7 @@
   var TOP = 10;
   var PUBLIC_URL = "ieee-arcade.vercel.app"; // shown under the QR code
 
-  var QUIZ_IDS = ["quiz-ieee", "quiz-cs", "quiz-sb"];
-  var GAME_IDS = ["game-2048", "game-trex", "game-memory"];
-
   function $(id) { return document.getElementById(id); }
-  function column(activityId) { return activityId.replace(/-/g, "_"); }
   function num(v) { return Number(v) || 0; }
   function fmt(n) { return num(n).toLocaleString("en-US"); }
 
@@ -47,10 +43,9 @@
 
       addCell(li, "c-rank", i === 0 ? "🥇" : i === 1 ? "🥈" : i === 2 ? "🥉" : i + 1);
       addCell(li, "c-name", row.nickname);
-      Arcade.ACTIVITIES.forEach(function (a) {
-        var v = row[column(a.id)];
-        addCell(li, "c-act", v === null || v === undefined ? "–" : v);
-      });
+      // Totals per type (from js/activities.js), so the table fits however many games there are
+      addCell(li, "c-sum", fmt(Arcade.totalOfType(row, "quiz")));
+      addCell(li, "c-sum", fmt(Arcade.totalOfType(row, "game")));
       addCell(li, "c-total", fmt(row.total));
 
       if (knownPlayers && !knownPlayers[key]) li.classList.add("is-new");
@@ -88,22 +83,23 @@
 
   // ---------- Side panels ----------
 
-  function best(rows, ids) {
+  // Highest sum of one type ("quiz" or "game") of scores
+  function best(rows, type) {
     var winner = null;
     var bestSum = 0;
     rows.forEach(function (row) {
-      var sum = ids.reduce(function (s, id) { return s + num(row[column(id)]); }, 0);
+      var sum = Arcade.totalOfType(row, type);
       if (sum > bestSum) { bestSum = sum; winner = row.nickname; }
     });
     return { name: winner, points: bestSum };
   }
 
   function renderAwards(rows) {
-    var quiz = best(rows, QUIZ_IDS);
+    var quiz = best(rows, "quiz");
     $("best-quiz").textContent = quiz.name || "–";
     $("best-quiz-score").textContent = quiz.name ? fmt(quiz.points) + " quiz points" : "Waiting for the first quiz…";
 
-    var gamer = best(rows, GAME_IDS);
+    var gamer = best(rows, "game");
     $("best-gamer").textContent = gamer.name || "–";
     $("best-gamer-score").textContent = gamer.name ? fmt(gamer.points) + " game points" : "Waiting for the first game…";
   }

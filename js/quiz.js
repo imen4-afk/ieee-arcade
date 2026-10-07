@@ -3,7 +3,7 @@
  * ---------------------------------------------------
  * Questions come from data/quiz.json (edit that file to add questions).
  * Each run: up to 10 random questions, options shuffled, a countdown per question.
- * Points per answer are computed by IEEEArcade.SCORING.quizAnswer() in js/arcade.js.
+ * Points per answer: IEEEArcade.SCORING.quizAnswer() (formulas in js/activities.js).
  */
 (function () {
   "use strict";

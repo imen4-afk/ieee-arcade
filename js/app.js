@@ -45,42 +45,53 @@
   function renderHub(nickname) {
     $("player-name").textContent = nickname;
     $("player-total").textContent = Arcade.getLocalTotal();
-    renderCards("quiz-list", "quiz");
-    renderCards("game-list", "game");
+    renderSections();
     updatePendingNotice();
     loadRank(nickname);
   }
 
-  function renderCards(containerId, type) {
-    var container = $(containerId);
+  // One section per category of js/activities.js, with a card per ready activity
+  function renderSections() {
+    var Registry = window.IEEEActivities;
+    var box = $("activity-sections");
     var bests = Arcade.getLocalBests();
-    container.innerHTML = "";
+    box.innerHTML = "";
 
-    Arcade.ACTIVITIES.filter(function (a) { return a.type === type; }).forEach(function (a) {
-      var best = bests[a.id];
-      var played = best !== undefined;
-      var max = Arcade.maxPointsFor(a.id);
+    Registry.CATEGORIES.forEach(function (cat) {
+      var items = Registry.ready().filter(function (a) { return a.category === cat.id; });
+      if (!items.length) return;
 
-      var card = document.createElement("a");
-      card.className = "activity " + a.type + (played ? " done" : "");
-      card.href = a.url;
-
-      var icon = el("span", "activity-icon", a.icon);
-      icon.setAttribute("aria-hidden", "true");
-
-      var text = el("span", "activity-text");
-      text.appendChild(el("strong", "", a.title));
-      text.appendChild(el("span", "activity-sub", a.subtitle));
-      text.appendChild(el("span", "activity-max", played ? "Best: " + best + " / " + max : "Up to " + max + " pts"));
-
-      var status = el("span", "activity-status", played ? "✓" : "›");
-      status.setAttribute("aria-label", played ? "Played" : "Not played yet");
-
-      card.appendChild(icon);
-      card.appendChild(text);
-      card.appendChild(status);
-      container.appendChild(card);
+      var title = el("h2", "section-title", cat.id + " ");
+      title.appendChild(el("span", "small", "· " + cat.note));
+      box.appendChild(title);
+      var grid = el("div", "activity-grid");
+      items.forEach(function (a) { grid.appendChild(activityCard(a, bests[a.id])); });
+      box.appendChild(grid);
     });
+  }
+
+  function activityCard(a, best) {
+    var played = best !== undefined;
+
+    var card = document.createElement("a");
+    card.className = "activity " + a.type + (played ? " done" : "");
+    card.href = a.url;
+
+    var icon = el("span", "activity-icon", a.icon);
+    icon.setAttribute("aria-hidden", "true");
+
+    var text = el("span", "activity-text");
+    text.appendChild(el("strong", "", a.name));
+    text.appendChild(el("span", "activity-sub", a.description));
+    text.appendChild(el("span", "activity-max", played ? "Best: " + best + " / " + a.maxPoints : "Up to " + a.maxPoints + " pts"));
+
+    var status = el("span", "activity-status", played ? "✓" : "›");
+    status.setAttribute("aria-label", played ? "Played" : "Not played yet");
+
+    card.appendChild(icon);
+    card.appendChild(text);
+    card.appendChild(status);
+    return card;
   }
 
   function el(tag, className, text) {

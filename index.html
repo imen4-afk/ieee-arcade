@@ -112,12 +112,9 @@
         <a class="btn btn-blue btn-block" href="leaderboard.html">🏆 Leaderboard</a>
         <p class="notice" id="pending-notice" hidden>📶 Some scores are waiting for a connection. They'll be sent automatically.</p>      </section>
 
-      <!-- Cards are built by js/app.js from IEEEArcade.ACTIVITIES -->
-      <h2 class="section-title">Quizzes <span class="small">· up to 1500 pts each</span></h2>
-      <div class="activity-grid" id="quiz-list"></div>
-
-      <h2 class="section-title">Games <span class="small">· up to 500 pts each</span></h2>
-      <div class="activity-grid" id="game-list"></div>
+      <!-- Sections + cards are built by js/app.js from js/activities.js
+           ("Quizzes", "Arcade classics", "Brain games") -->
+      <div id="activity-sections"></div>
     </div>
 
     <!-- ===== About ===== -->
@@ -232,6 +229,7 @@
   <footer id="site-footer" class="site-footer"></footer>
 
   <script src="js/config.js"></script>
+  <script src="js/activities.js"></script>
   <script src="js/arcade.js"></script>
   <script src="js/layout.js" data-root=""></script>
   <script src="js/events-format.js"></script>

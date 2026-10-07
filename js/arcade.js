@@ -23,51 +23,12 @@
   "use strict";
 
   // ======================================================================
-  // Activities. "url" is relative to the site root (index.html).
-  // The id must match the ids used in the Supabase submit_score() function.
+  // Activities and score formulas come from the ONE registry: js/activities.js
+  // (load it before this file). ACTIVITIES = every quiz/game, built or not.
   // ======================================================================
-  var ACTIVITIES = [
-    { id: "quiz-ieee",   type: "quiz", icon: "🌍", title: "IEEE 101",                      subtitle: "How well do you know IEEE?",        url: "quiz.html?set=quiz-ieee" },
-    { id: "quiz-cs",     type: "quiz", icon: "💻", title: "Tech Basics",                   subtitle: "Easy tech questions for beginners", url: "quiz.html?set=quiz-cs" },
-    { id: "quiz-sb",     type: "quiz", icon: "🎓", title: "Our Student Branch & Chapters", subtitle: "CS, CIS, RAS, WIE and our events",  url: "quiz.html?set=quiz-sb" },
-    { id: "game-2048",   type: "game", icon: "🧩", title: "IEEE Journey",                  subtitle: "2048 – from Curious to IEEE Hero",  url: "games/2048/index.html" },
-    { id: "game-trex",   type: "game", icon: "🐞", title: "Ezzdin 101",                    subtitle: "Help Ezzdin dodge the bugs!",      url: "games/t-rex/index.html" },
-    { id: "game-memory", type: "game", icon: "🃏", title: "Tech Match",                    subtitle: "Match our chapter & partner logos", url: "games/memory/index.html" }
-  ];
-
-  // ======================================================================
-  // SCORING – every formula lives here so it's easy to tune.
-  // Keep MAX_POINTS in sync with the caps in the Supabase submit_score() function.
-  // ======================================================================
-  var MAX_POINTS = { quiz: 1500, game: 500 };
-
-  var SCORING = {
-    QUIZ_QUESTIONS_PER_RUN: 10,
-    QUIZ_POINTS_PER_CORRECT: 100,
-    QUIZ_MAX_SPEED_BONUS: 50,
-
-    // One quiz answer: 100 points + up to 50 bonus, proportional to the time left. Wrong or timeout = 0.
-    quizAnswer: function (isCorrect, secondsLeft, secondsTotal) {
-      if (!isCorrect) return 0;
-      var ratio = secondsTotal > 0 ? Math.max(0, Math.min(1, secondsLeft / secondsTotal)) : 0;
-      return SCORING.QUIZ_POINTS_PER_CORRECT + Math.round(SCORING.QUIZ_MAX_SPEED_BONUS * ratio);
-    },
-
-    // 2048: the original game score divided by 20.
-    game2048: function (gameScore) {
-      return Math.min(MAX_POINTS.game, Math.floor(gameScore / 20));
-    },
-
-    // Ezzdin 101 (t-rex runner): the distance score divided by 2.
-    trex: function (distanceScore) {
-      return Math.min(MAX_POINTS.game, Math.floor(distanceScore / 2));
-    },
-
-    // Tech Match: fewer moves and less time = more points (minimum 50 for finishing).
-    memory: function (moves, seconds) {
-      return Math.min(MAX_POINTS.game, Math.max(50, 500 - moves * 8 - seconds));
-    }
-  };
+  var Registry = window.IEEEActivities;
+  var ACTIVITIES = Registry.LIST;
+  var SCORING = Registry.FORMULAS;
 
   // ======================================================================
   // Settings
@@ -246,16 +207,9 @@
 
   // ---------- Scores ----------
 
-  function findActivity(id) {
-    for (var i = 0; i < ACTIVITIES.length; i++) {
-      if (ACTIVITIES[i].id === id) return ACTIVITIES[i];
-    }
-    return null;
-  }
-
   function maxPointsFor(activityId) {
-    var activity = findActivity(activityId);
-    return activity ? MAX_POINTS[activity.type] : 0;
+    var activity = Registry.byId(activityId);
+    return activity ? activity.maxPoints : 0;
   }
 
   function getLocalBests() {
@@ -279,8 +233,9 @@
       });
       if (!row) return;
       var bests = getLocalBests();
+      var scores = scoresOf(row);
       ACTIVITIES.forEach(function (a) {
-        var server = Number(row[a.id.replace(/-/g, "_")]) || 0;
+        var server = Number(scores[a.id]) || 0;
         if (server > (bests[a.id] || 0)) bests[a.id] = server;
       });
       writeJSON(KEY_BESTS, bests);
@@ -389,7 +344,18 @@
 
   // ---------- Leaderboard ----------
 
-  // rows: [{ nickname, total, game_2048, game_trex, game_memory, quiz_ieee, quiz_cs, quiz_sb }]
+  // The per-activity scores of a leaderboard row: { "game-2048": 340, "quiz-ieee": 1200, ... }
+  function scoresOf(row) {
+    return row && row.scores && typeof row.scores === "object" ? row.scores : {};
+  }
+
+  // Sum of a row's scores for one type ("quiz" or "game"), using the registry
+  function totalOfType(row, type) {
+    var scores = scoresOf(row);
+    return Registry.ofType(type).reduce(function (sum, a) { return sum + (Number(scores[a.id]) || 0); }, 0);
+  }
+
+  // rows: [{ nickname, total, scores: { "game-2048": 340, "quiz-ieee": 1200, ... } }]
   function getLeaderboard() {
     return request("POST", "/rest/v1/rpc/get_leaderboard", {}).then(function (r) {
       if (!r.ok || !Array.isArray(r.data)) return { ok: false, error: friendlyError(r) };
@@ -469,8 +435,9 @@
 
   window.IEEEArcade = {
     ACTIVITIES: ACTIVITIES,
-    MAX_POINTS: MAX_POINTS,
     SCORING: SCORING,
+    scoresOf: scoresOf,
+    totalOfType: totalOfType,
     MIN_PASSWORD: MIN_PASSWORD,
     isConfigured: isConfigured,
     getNickname: getNickname,

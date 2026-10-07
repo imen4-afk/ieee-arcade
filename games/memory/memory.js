@@ -1,6 +1,6 @@
 /*
  * Tech Match – memory game (4x4 grid, 8 pairs)
- * Points: IEEEArcade.SCORING.memory(moves, seconds) in js/arcade.js.
+ * Points: IEEEArcade.SCORING.memory(moves, seconds) (formulas in js/activities.js).
  */
 (function () {
   "use strict";

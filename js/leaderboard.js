@@ -16,8 +16,13 @@
   var expanded = {};     // nickname -> true, kept across refreshes
   var loading = false;
 
-  // Supabase column name for an activity id: "game-2048" -> "game_2048"
-  function column(activityId) { return activityId.replace(/-/g, "_"); }
+  var Registry = window.IEEEActivities;
+
+  // Activities shown in the expanded row: every ready one (from js/activities.js),
+  // plus any not-yet-shown activity this player already has a score for.
+  function detailActivities(scores) {
+    return Registry.LIST.filter(function (a) { return a.ready || scores[a.id] !== undefined; });
+  }
 
   function medal(rank) {
     return rank === 1 ? "🥇" : rank === 2 ? "🥈" : rank === 3 ? "🥉" : String(rank);
@@ -61,11 +66,12 @@
       var details = document.createElement("dl");
       details.className = "lb-details";
       details.hidden = !expanded[key];
-      Arcade.ACTIVITIES.forEach(function (a) {
+      var scores = Arcade.scoresOf(row);
+      detailActivities(scores).forEach(function (a) {
         var dt = document.createElement("dt");
-        dt.textContent = a.icon + " " + a.title;
+        dt.textContent = a.icon + " " + a.name;
         var dd = document.createElement("dd");
-        var v = row[column(a.id)];
+        var v = scores[a.id];
         dd.textContent = v === null || v === undefined ? "–" : v;
         details.appendChild(dt);
         details.appendChild(dd);
