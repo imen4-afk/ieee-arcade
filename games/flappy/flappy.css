@@ -1,0 +1,9 @@
+/* Flappy Ezzdin */
+.fl-stage { display: flex; justify-content: center; }
+#fl-canvas {
+  display: block;
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  background: var(--ieee-dark);
+  cursor: pointer;
+}

@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#0a0a0a">
+  <title>Flappy Ezzdin – IEEE Arcade</title>
+  <link rel="icon" href="../../assets/img/sb-icon.png">
+  <link rel="stylesheet" href="../../css/style.css">
+  <link rel="stylesheet" href="../../css/game-kit.css">
+  <link rel="stylesheet" href="flappy.css">
+</head>
+<body>
+
+  <header class="topbar">
+    <a class="back-btn" href="../../index.html">← Arcade</a>
+    <span class="sb-logo">
+      <img class="logo-img" src="../../assets/img/sb-logo-white.png" alt="IEEE ISIMA Student Branch logo"
+           onerror="this.hidden = true; this.nextElementSibling.hidden = false;">
+      <span class="logo-fallback" hidden>IEEE ISIMA SB</span>
+    </span>
+    <h1 class="topbar-title">Flappy Ezzdin</h1>
+  </header>
+  <div class="gk-subbar" id="gk-subbar"></div>
+
+  <main class="game-main">
+    <section class="card gk-screen" id="gk-start" hidden></section>
+
+    <div id="gk-play" hidden>
+      <div class="fl-stage">
+        <canvas id="fl-canvas" class="gk-touch" aria-label="Flappy Ezzdin game. Tap or press Space to flap."></canvas>
+      </div>
+      <p class="small center">Tap the game (or press Space) to flap. Fly through the firewalls!</p>
+    </div>
+
+    <section class="card gk-screen" id="gk-end" hidden></section>
+  </main>
+
+  <footer id="site-footer" class="site-footer"></footer>
+
+  <script src="../../js/config.js"></script>
+  <script src="../../js/activities.js"></script>
+  <script src="../../js/arcade.js"></script>
+  <script src="../../js/layout.js" data-root="../../"></script>
+  <script src="../../js/game-kit.js"></script>
+  <script src="flappy.js"></script>
+</body>
+</html>

@@ -44,7 +44,7 @@
     { id: "game-whack", name: "Whack-a-Bug", description: "Squash the bugs, spare the features", icon: "🐛",
       type: "game", category: "Arcade classics", url: "games/whack/index.html", maxPoints: GAME_MAX, ready: true },
     { id: "game-flappy", name: "Flappy Ezzdin", description: "Fly Ezzdin through the firewalls", icon: "🪽",
-      type: "game", category: "Arcade classics", url: "games/flappy/index.html", maxPoints: GAME_MAX, ready: false },
+      type: "game", category: "Arcade classics", url: "games/flappy/index.html", maxPoints: GAME_MAX, ready: true },
     { id: "game-hextris", name: "Hextris", description: "Match colors on the spinning hexagon", icon: "⬡",
       type: "game", category: "Arcade classics", url: "games/hextris/index.html", maxPoints: GAME_MAX, ready: false },
     { id: "game-tetris", name: "Tetris", description: "Stack the blocks, clear the lines", icon: "🧱",
