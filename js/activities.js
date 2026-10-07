@@ -94,7 +94,7 @@
     // Logic Gates: 20 per correct answer + 5 per answer in the best streak
     logic: function (correct, bestStreak) { return cap(correct * 20 + bestStreak * 5); },
 
-    // Hextris and Tetris: their own game score divided by a divisor (set in Phases 6 and 7)
+    // Hextris and Tetris: their own game score divided by a divisor
     // n blocks cleared = n² × combo; a decent 2-min game ≈ 800–1200 → ≈ 270–400 points
     HEXTRIS_DIVISOR: 3,
     hextris: function (score) { return cap(Math.floor(score / FORMULAS.HEXTRIS_DIVISOR)); },

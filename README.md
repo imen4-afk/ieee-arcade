@@ -19,10 +19,45 @@ Live site: https://ieee-arcade.vercel.app
 | `quiz.html?set=quiz-ieee` | Quiz engine (also `quiz-cs`, `quiz-sb`) |
 | `leaderboard.html` | Top 50 on the phone |
 | `dashboard.html` | Big-screen scoreboard for the stand (1920x1080, press **Fullscreen**) |
-| `games/2048/` | **IEEE Journey** (2048 reskin) |
-| `games/t-rex/` | **Ezzdin 101** (T-Rex runner reskin) |
-| `games/memory/` | **Tech Match** (memory game with our chapter and partner logos) |
+| `games/<name>/` | The 9 games (see "Games" below) |
 | `events.html` | Upcoming events (from `data/events.json`): this month + the next 3, Google Calendar links |
+
+## Games
+
+All 12 activities (3 quizzes + 9 games) are listed in ONE registry: **`js/activities.js`**. The hub, the
+leaderboard, the dashboard and the games read names, lists and score formulas from it.
+
+| Section on the hub | Game | Folder | Id |
+| --- | --- | --- | --- |
+| Arcade classics | IEEE Journey (2048) | `games/2048/` | `game-2048` |
+| Arcade classics | Ezzdin 101 (runner) | `games/t-rex/` | `game-trex` |
+| Arcade classics | Whack-a-Bug | `games/whack/` | `game-whack` |
+| Arcade classics | Flappy Ezzdin | `games/flappy/` | `game-flappy` |
+| Arcade classics | Hextris | `games/hextris/` | `game-hextris` |
+| Arcade classics | Tetris | `games/tetris/` | `game-tetris` |
+| Brain games | Tech Match (memory) | `games/memory/` | `game-memory` |
+| Brain games | Binary Blitz | `games/binary/` | `game-binary` |
+| Brain games | Logic Gates | `games/logic/` | `game-logic` |
+
+The new games (Whack-a-Bug, Flappy Ezzdin, Binary Blitz, Logic Gates, Hextris, Tetris) share
+`js/game-kit.js` + `css/game-kit.css`: header with nickname / best score / sound toggle (off by default,
+generated beeps, no audio files), start screen with Ezzdin, end screen with "+340 points! Best: 410",
+a delta-time animation loop that pauses in a hidden tab, and sharp canvases on high-density screens.
+
+- **Hextris** runs inside an iframe (`games/hextris/game.html` = the original page without ads,
+  analytics, remote font, social widgets or store links). `checkGameOver()` calls the arcade wrapper.
+- **Tetris** (`games/tetris/index.html`): original logic, portrait layout, touch buttons
+  ◀ ▶ ⟳ ▼ ⤓ (hold ◀ ▶ ▼ to repeat) and IEEE colors. Edits are marked "IEEE Arcade:".
+
+### Add a new game
+1. Build it in `games/<name>/` (copy one of the new games: it shows how to use `GameKit`).
+2. Add it to `LIST` in `js/activities.js` (id, name, description, icon, type, category, url, `ready: true`)
+   and its score formula to `FORMULAS`.
+3. In Supabase → SQL Editor, allow the new id on the scoreboard:
+   ```sql
+   insert into activities (id, max_points) values ('game-xxx', 500);
+   ```
+It then appears on the hub, the leaderboard and the dashboard automatically.
 
 ## Run it locally
 
@@ -116,7 +151,8 @@ Edit `data/quiz.json` (no code changes needed):
 ## Scoring
 
 All formulas are in one place: `FORMULAS` in `js/activities.js` (the registry of every game and quiz).
-Keep the caps in sync with the Supabase `submit_score()` function.
+Max points per activity are in the Supabase `activities` table (`max_points`): keep them equal to `maxPoints` in `js/activities.js`.
+The leaderboard returns `{ nickname, total, scores: { "game-2048": 340, ... } }`; the dashboard shows Quizzes total, Games total and Total.
 
 | Activity | Points | Max |
 | --- | --- | --- |
@@ -124,6 +160,12 @@ Keep the caps in sync with the Supabase `submit_score()` function.
 | IEEE Journey (2048) | game score / 20 | 500 |
 | Ezzdin 101 | distance / 2 | 500 |
 | Tech Match | 500 − moves × 8 − seconds (minimum 50) | 500 |
+| Whack-a-Bug | round score (🐛 +10, 🪲 +30, ✅ −15), 30 s | 500 |
+| Flappy Ezzdin | 20 per firewall passed | 500 |
+| Binary Blitz | 25 per number built, 60 s | 500 |
+| Logic Gates | 20 per correct answer + 5 × best streak, 45 s | 500 |
+| Hextris | game score / 3 (`HEXTRIS_DIVISOR`) | 500 |
+| Tetris | game score / 10 (`TETRIS_DIVISOR`) | 500 |
 
 Only each player's **best** score per activity counts.
 
@@ -143,6 +185,8 @@ white artwork, so they always sit on dark tiles.
 
 - **IEEE Journey** is based on [2048](https://github.com/gabrielecirulli/2048) by Gabriele Cirulli (MIT License, `games/2048/LICENSE.txt`).
 - **Ezzdin 101** is based on [T-Rex Runner](https://github.com/wayou/t-rex-runner) by wayou, extracted from Chromium (BSD 3-Clause License, `games/t-rex/LICENSE`).
+- **Hextris** is [Hextris](https://github.com/hextris/hextris) by Logan Engstrom & Garrett Finucane (GPL-3.0, `games/hextris/LICENSE.md`), with ads and trackers removed.
+- **Tetris** is based on [javascript-tetris](https://github.com/jakesgordon/javascript-tetris) by Jake Gordon (MIT License, `games/tetris/LICENSE`).
 - Ezzdin is the IEEE ISIMA SB mascot (`assets/img/mascot.png`).
 - Design inspired by [isima.ieee.tn](https://isima.ieee.tn/).
 - IEEE, IEEE society and chapter logos are trademarks of IEEE.
