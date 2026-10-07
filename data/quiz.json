@@ -1,0 +1,66 @@
+{
+  "sets": [
+    {
+      "id": "quiz-ieee",
+      "title": "IEEE 101",
+      "description": "How well do you know IEEE? 10 questions, 15 seconds each. Answer fast for bonus points!",
+      "timePerQuestion": 15,
+      "questions": [
+        { "q": "What does IEEE stand for?", "options": ["Institute of Electrical and Electronics Engineers", "International Electronics and Energy Engineers", "Institute of Electronic and Embedded Engineering", "International Electrical Engineering Exchange"], "answer": 0, "explain": "Usually pronounced \"Eye-triple-E\"." },
+        { "q": "In which year was IEEE created?", "options": ["1884", "1946", "1963", "1984"], "answer": 2, "explain": "IEEE was formed in 1963 by a merger of two older organizations." },
+        { "q": "IEEE was formed by merging which two organizations?", "options": ["AIEE and IRE", "ACM and IRE", "AIEE and ACM", "IEC and ISO"], "answer": 0, "explain": "The American Institute of Electrical Engineers (1884) and the Institute of Radio Engineers (1912)." },
+        { "q": "What is IEEE's tagline?", "options": ["Advancing Technology for Humanity", "Engineering the Future", "Connecting the World", "Innovation for All"], "answer": 0, "explain": "" },
+        { "q": "The IEEE logo's diamond shape represents what?", "options": ["Benjamin Franklin's kite", "A microchip", "A lightning bolt", "A satellite dish"], "answer": 0, "explain": "The kite also carries an arrow illustrating the right-hand rule of electromagnetism." },
+        { "q": "Tunisia belongs to which IEEE Region?", "options": ["Region 1", "Region 5", "Region 8", "Region 10"], "answer": 2, "explain": "Region 8 covers Europe, the Middle East and Africa." },
+        { "q": "What is IEEE Xplore?", "options": ["A rover project", "A digital library of research papers and standards", "A coding contest", "A student magazine"], "answer": 1, "explain": "" },
+        { "q": "What is IEEEXtreme?", "options": ["A 24-hour global programming competition for students", "An extreme sports club", "A hardware hackathon", "A research award"], "answer": 0, "explain": "" },
+        { "q": "IEEE Day celebrates the first gathering of IEEE's founders. In which month is it celebrated?", "options": ["March", "July", "October", "December"], "answer": 2, "explain": "" },
+        { "q": "What is IEEE's highest award?", "options": ["Nobel Prize", "Turing Award", "IEEE Medal of Honor", "Fields Medal"], "answer": 2, "explain": "" },
+        { "q": "Which IEEE affinity group supports women in engineering and technology?", "options": ["WIE", "YP", "SIGHT", "HKN"], "answer": 0, "explain": "" },
+        { "q": "What is the name of IEEE's flagship magazine sent to members?", "options": ["Wired", "IEEE Spectrum", "Computer World", "Tech Today"], "answer": 1, "explain": "" }
+      ]
+    },
+    {
+      "id": "quiz-cs",
+      "title": "Computer Society & Standards",
+      "description": "Wi-Fi, Ethernet, floating point… the IEEE standards behind your everyday tech. 10 questions, 15 seconds each.",
+      "timePerQuestion": 15,
+      "questions": [
+        { "q": "When was the IEEE Computer Society founded?", "options": ["1946", "1963", "1971", "1989"], "answer": 0, "explain": "It's the oldest and largest IEEE society dedicated to computing." },
+        { "q": "Wi-Fi is based on which IEEE standard?", "options": ["802.3", "802.11", "754", "1394"], "answer": 1, "explain": "" },
+        { "q": "Ethernet is defined by which IEEE standard?", "options": ["802.3", "802.11", "802.15", "1284"], "answer": 0, "explain": "" },
+        { "q": "What does IEEE 754 define?", "options": ["Wireless networks", "Floating-point arithmetic", "USB connectors", "Ethernet cables"], "answer": 1, "explain": "It's why 0.1 + 0.2 doesn't exactly equal 0.3 in most programming languages!" },
+        { "q": "Bluetooth was originally standardized as IEEE...", "options": ["802.15.1", "802.11b", "802.3u", "1394"], "answer": 0, "explain": "" },
+        { "q": "Zigbee is built on which IEEE standard?", "options": ["802.15.4", "802.11ac", "802.3af", "754"], "answer": 0, "explain": "" },
+        { "q": "FireWire is the common name of which IEEE standard?", "options": ["802.11", "1394", "754", "802.3"], "answer": 1, "explain": "" },
+        { "q": "What is the IEEE Computer Society's flagship magazine called?", "options": ["Spectrum", "Computer", "Byte", "Code"], "answer": 1, "explain": "" },
+        { "q": "What is an IEEE Student Branch?", "options": ["An IEEE unit at a university, run by student volunteers", "A paid internship program", "An online course", "A research lab"], "answer": 0, "explain": "" },
+        { "q": "True or false: you must be an electrical engineering student to join IEEE.", "options": ["True", "False"], "answer": 1, "explain": "Computer science, physics, math and many other fields are welcome." }
+      ]
+    },
+    {
+      "id": "quiz-sb",
+      "title": "Our Student Branch & Chapters",
+      "description": "How well do you know the IEEE ISIMA Student Branch, its chapters and its events? 10 questions, 15 seconds each.",
+      "timePerQuestion": 15,
+      "questions": [
+        { "q": "How many members does IEEE ISIMA SB have?", "options": ["About 50", "About 100", "190+", "500+"], "answer": 2, "explain": "" },
+        { "q": "How many officers lead our SB's activities?", "options": ["10", "20", "35", "60"], "answer": 2, "explain": "" },
+        { "q": "In which year was ISIMA established?", "options": ["1998", "2004", "2010", "2015"], "answer": 1, "explain": "" },
+        { "q": "ISIMA is affiliated with which university?", "options": ["University of Sousse", "University of Monastir", "University of Sfax", "University of Tunis El Manar"], "answer": 1, "explain": "" },
+        { "q": "Which of these is NOT one of our SB's chapters or affinity groups?", "options": ["CS", "RAS", "WIE", "PES"], "answer": 3, "explain": "Our 4 are CS, CIS, RAS and WIE." },
+        { "q": "What does RAS stand for?", "options": ["Robotics & Automation Society", "Research & Applied Sciences", "Robotics & AI Students", "Radio & Antenna Society"], "answer": 0, "explain": "" },
+        { "q": "Which chapter focuses on neural networks, fuzzy systems and evolutionary computation?", "options": ["CS", "CIS", "RAS", "WIE"], "answer": 1, "explain": "" },
+        { "q": "What does WIE stand for?", "options": ["Wireless Internet Engineering", "Women in Engineering", "Web Innovation Experts", "World IEEE Events"], "answer": 1, "explain": "" },
+        { "q": "In computational intelligence, evolutionary computation is mainly about…?", "options": ["Genetic algorithms and optimization", "Building robot arms", "Web design", "Database backups"], "answer": 0, "explain": "" },
+        { "q": "Which of these topics does our CS chapter cover?", "options": ["Only hardware repair", "Software engineering, cybersecurity, cloud and IoT", "Only mathematics", "Marketing"], "answer": 1, "explain": "" },
+        { "q": "AURA, organized with our SB, is a national congress about…?", "options": ["Cloud computing", "Healthcare robotics & AI", "Renewable energy", "Game development"], "answer": 1, "explain": "AURA = Annual Union of Robotics & AI." },
+        { "q": "\"Unmasking Cyber Threats\" is our event about…?", "options": ["Robotics", "Cybersecurity", "Entrepreneurship", "Web design"], "answer": 1, "explain": "" },
+        { "q": "Which business incubator is one of our SB's partners?", "options": ["Pépinière d'entreprises de Mahdia", "Silicon Valley Lab", "Tunis Tech Park", "Mahdia Digital Hub"], "answer": 0, "explain": "" },
+        { "q": "Which 24-hour global programming competition does our SB host?", "options": ["Google Code Jam", "IEEEXtreme", "Hackathon Night", "ICPC Finals"], "answer": 1, "explain": "" },
+        { "q": "What is RamadhanIEEET?", "options": ["A coding marathon", "A Ramadan evening where members break their fast together", "A robotics contest", "An exam session"], "answer": 1, "explain": "" },
+        { "q": "Where can you find the IEEE room at ISIMA, and when is it open?", "options": ["At ISIMA, Monday to Friday, 08:00–18:00", "Online only", "Weekends only", "At the Mahdia city hall"], "answer": 0, "explain": "" }
+      ]
+    }
+  ]
+}

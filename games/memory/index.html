@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#0a0a0a">
+  <title>Tech Match – IEEE Arcade</title>
+  <link rel="icon" href="../../assets/img/sb-icon.png">
+  <link rel="stylesheet" href="../../css/style.css">
+  <link rel="stylesheet" href="memory.css">
+</head>
+<body>
+
+  <header class="topbar">
+    <a class="back-btn" href="../../index.html">← Arcade</a>
+    <span class="sb-logo">
+      <img class="logo-img" src="../../assets/img/sb-logo-white.png" alt="IEEE ISIMA Student Branch logo"
+           onerror="this.hidden = true; this.nextElementSibling.hidden = false;">
+      <span class="logo-fallback" hidden>IEEE ISIMA SB</span>
+    </span>
+    <h1 class="topbar-title">Tech Match</h1>
+    <span class="player-chip" data-player-chip></span>
+  </header>
+
+  <main class="container memory">
+    <div class="mem-stats" aria-live="polite">
+      <div><strong id="mem-moves">0</strong><span>moves</span></div>
+      <div><strong id="mem-time">0:00</strong><span>time</span></div>
+      <div><strong id="mem-pairs">0/8</strong><span>pairs</span></div>
+    </div>
+
+    <div class="mem-grid" id="mem-grid" aria-label="Memory cards"></div>
+
+    <p class="small center" id="mem-best"></p>
+    <button type="button" class="btn btn-ghost btn-block" id="mem-restart">↻ Restart</button>
+  </main>
+
+  <!-- End screen -->
+  <div class="mem-end" id="mem-end" hidden role="dialog" aria-modal="true" aria-labelledby="mem-end-title">
+    <div class="card center mem-end-box">
+      <div class="result-emoji" aria-hidden="true">🎉</div>
+      <h2 id="mem-end-title">All pairs found!</h2>
+      <p id="mem-end-stats"></p>
+      <p class="result-points" id="mem-end-points"></p>
+      <p class="small" id="mem-end-best"></p>
+      <div class="btn-row" style="margin-top:14px">
+        <button type="button" class="btn btn-primary" id="mem-again">Play again</button>
+        <a class="btn btn-ghost" href="../../index.html">Back to Arcade</a>
+      </div>
+      <a class="discover-link" href="../../chapters.html">Discover our chapters →</a>
+    </div>
+  </div>
+
+  <footer id="site-footer" class="site-footer"></footer>
+
+  <script src="../../js/config.js"></script>
+  <script src="../../js/arcade.js"></script>
+  <script src="../../js/layout.js" data-root="../../"></script>
+  <script src="memory.js"></script>
+</body>
+</html>

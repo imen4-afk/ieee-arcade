@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#0a0a0a">
+  <title>Leaderboard – IEEE Arcade</title>
+  <link rel="icon" href="assets/img/sb-icon.png">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+  <header class="topbar">
+    <a class="back-btn" href="index.html">← Arcade</a>
+    <span class="sb-logo">
+      <img class="logo-img" src="assets/img/sb-logo-white.png" alt="IEEE ISIMA Student Branch logo"
+           onerror="this.hidden = true; this.nextElementSibling.hidden = false;">
+      <span class="logo-fallback" hidden>IEEE ISIMA SB</span>
+    </span>
+    <h1 class="topbar-title">Leaderboard</h1>
+    <span class="player-chip" data-player-chip></span>
+  </header>
+
+  <main class="container">
+    <div class="lb-head">
+      <h2 class="section-title" style="margin:8px 2px 0">🏆 Top 50</h2>
+      <button type="button" class="btn btn-ghost" id="lb-refresh">↻ Refresh</button>
+    </div>
+    <p class="small" id="lb-status" aria-live="polite">Loading…</p>
+
+    <ol class="lb-list" id="lb-list"></ol>
+    <p class="small center">Tap a player to see their score per game and quiz. Updates every 20 seconds.</p>
+  </main>
+
+  <footer id="site-footer" class="site-footer"></footer>
+
+  <script src="js/config.js"></script>
+  <script src="js/arcade.js"></script>
+  <script src="js/layout.js" data-root=""></script>
+  <script src="js/leaderboard.js"></script>
+</body>
+</html>

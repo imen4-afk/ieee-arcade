@@ -1,25 +1,34 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
   <meta charset="utf-8">
-  <title>2048</title>
+  <!-- IEEE Arcade: page title, viewport and icons changed for the arcade -->
+  <title>IEEE Journey – IEEE Arcade</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#0a0a0a">
+  <link rel="icon" href="../../assets/img/sb-icon.png">
 
+  <!-- IEEE Arcade: shared theme first, then the original 2048 styles, then our overrides -->
+  <link href="../../css/style.css" rel="stylesheet" type="text/css">
   <link href="style/main.css" rel="stylesheet" type="text/css">
-  <link rel="shortcut icon" href="favicon.ico">
-  <link rel="apple-touch-icon" href="meta/apple-touch-icon.png">
-  <link rel="apple-touch-startup-image" href="meta/apple-touch-startup-image-640x1096.png" media="(device-width: 320px) and (device-height: 568px) and (-webkit-device-pixel-ratio: 2)"> <!-- iPhone 5+ -->
-  <link rel="apple-touch-startup-image" href="meta/apple-touch-startup-image-640x920.png"  media="(device-width: 320px) and (device-height: 480px) and (-webkit-device-pixel-ratio: 2)"> <!-- iPhone, retina -->
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black">
-
-  <meta name="HandheldFriendly" content="True">
-  <meta name="MobileOptimized" content="320">
-  <meta name="viewport" content="width=device-width, target-densitydpi=160dpi, initial-scale=1.0, maximum-scale=1, user-scalable=no, minimal-ui">
+  <link href="style/ieee-theme.css" rel="stylesheet" type="text/css">
 </head>
 <body>
+  <!-- IEEE Arcade: shared top bar with back button and SB logo -->
+  <header class="topbar">
+    <a class="back-btn" href="../../index.html">← Arcade</a>
+    <span class="sb-logo">
+      <img class="logo-img" src="../../assets/img/sb-logo-white.png" alt="IEEE ISIMA Student Branch logo"
+           onerror="this.hidden = true; this.nextElementSibling.hidden = false;">
+      <span class="logo-fallback" hidden>IEEE ISIMA SB</span>
+    </span>
+    <span class="topbar-title">IEEE ISIMA SB</span>
+    <span class="player-chip" data-player-chip></span>
+  </header>
+
   <div class="container">
     <div class="heading">
-      <h1 class="title">2048</h1>
+      <h1 class="title">IEEE Journey</h1>
       <div class="scores-container">
         <div class="score-container">0</div>
         <div class="best-container">0</div>
@@ -27,17 +36,23 @@
     </div>
 
     <div class="above-game">
-      <p class="game-intro">Join the numbers and get to the <strong>2048 tile!</strong></p>
+      <p class="game-intro">Swipe to merge and grow from <strong>Curious</strong> to <strong>IEEE Hero!</strong></p>
       <a class="restart-button">New Game</a>
     </div>
 
     <div class="game-container">
       <div class="game-message">
         <p></p>
+        <!-- IEEE Arcade: arcade points + chapters link on the end screen -->
+        <div class="arcade-result">
+          <span class="arcade-points"></span>
+          <span class="arcade-best"></span>
+        </div>
         <div class="lower">
 	        <a class="keep-playing-button">Keep going</a>
           <a class="retry-button">Try again</a>
         </div>
+        <a class="discover-link" href="../../chapters.html">Discover our chapters →</a>
       </div>
 
       <div class="grid-container">
@@ -72,18 +87,23 @@
       </div>
     </div>
 
+    <!-- IEEE Arcade: instructions and credits adapted (original attribution kept) -->
     <p class="game-explanation">
-      <strong class="important">How to play:</strong> Use your <strong>arrow keys</strong> to move the tiles. When two tiles with the same number touch, they <strong>merge into one!</strong>
+      <strong class="important">How to play:</strong> <strong>Swipe</strong> (or use the arrow keys) to move the tiles. When two identical tiles touch, they <strong>merge into the next step</strong> of the IEEE journey: Curious → Student → Member → Volunteer → Officer → Chair → Mentor → Senior → Fellow → Legend → IEEE Hero.
     </p>
     <hr>
     <p>
-    <strong class="important">Note:</strong> This site is the official version of 2048. You can play it on your phone via <a href="http://git.io/2048">http://git.io/2048.</a> All other apps or sites are derivatives or fakes, and should be used with caution.
-    </p>
-    <hr>
-    <p>
-    Created by <a href="http://gabrielecirulli.com" target="_blank">Gabriele Cirulli.</a> Based on <a href="https://itunes.apple.com/us/app/1024!/id823499224" target="_blank">1024 by Veewo Studio</a> and conceptually similar to <a href="http://asherv.com/threes/" target="_blank">Threes by Asher Vollmer.</a>
+    Based on <a href="https://github.com/gabrielecirulli/2048" target="_blank" rel="noopener">2048</a>, created by <a href="http://gabrielecirulli.com" target="_blank" rel="noopener">Gabriele Cirulli</a> (MIT License). Based on <a href="https://itunes.apple.com/us/app/1024!/id823499224" target="_blank" rel="noopener">1024 by Veewo Studio</a> and conceptually similar to <a href="http://asherv.com/threes/" target="_blank" rel="noopener">Threes by Asher Vollmer.</a>
     </p>
   </div>
+
+  <footer id="site-footer" class="site-footer"></footer>
+
+  <!-- IEEE Arcade: scoreboard + layout + journey labels -->
+  <script src="../../js/config.js"></script>
+  <script src="../../js/arcade.js"></script>
+  <script src="../../js/layout.js" data-root="../../"></script>
+  <script src="js/ieee_arcade.js"></script>
 
   <script src="js/bind_polyfill.js"></script>
   <script src="js/classlist_polyfill.js"></script>

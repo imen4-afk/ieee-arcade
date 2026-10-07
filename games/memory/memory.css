@@ -1,0 +1,118 @@
+/* Tech Match – memory game styles (theme tokens come from css/style.css) */
+
+.mem-stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  margin: 4px 0 14px;
+  text-align: center;
+}
+.mem-stats div { padding: 8px 4px; border-radius: var(--radius-sm); background: var(--card); border: 1px solid var(--border); }
+.mem-stats strong { display: block; font-size: 1.35rem; font-weight: 900; font-variant-numeric: tabular-nums; }
+.mem-stats span { font-size: 0.72rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; }
+
+.mem-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+  max-width: 460px;
+  margin: 0 auto 14px;
+}
+
+.mcard {
+  position: relative;
+  aspect-ratio: 3 / 4;
+  min-height: 44px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  perspective: 700px;
+  cursor: pointer;
+  touch-action: manipulation;
+  font: inherit;
+}
+.mcard-inner {
+  position: absolute;
+  inset: 0;
+  transform-style: preserve-3d;
+  transition: transform 0.45s cubic-bezier(.3, .7, .3, 1);
+}
+.mcard.flipped .mcard-inner,
+.mcard.matched .mcard-inner { transform: rotateY(180deg); }
+
+.mcard-face {
+  position: absolute;
+  inset: 0;
+  border-radius: 12px;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  box-shadow: var(--shadow);
+  overflow: hidden;
+}
+
+/* Back: IEEE blue with a kite-inspired diamond drawn in CSS (not the official logo) */
+.mcard-back {
+  background:
+    linear-gradient(rgba(255, 255, 255, 0.07) 1px, transparent 1px) 0 0 / 10px 10px,
+    linear-gradient(90deg, rgba(255, 255, 255, 0.07) 1px, transparent 1px) 0 0 / 10px 10px,
+    linear-gradient(160deg, var(--ieee-blue), var(--ieee-dark));
+}
+.mcard-back::before {             /* the kite */
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 46%;
+  width: 34%;
+  aspect-ratio: 1;
+  transform: translate(-50%, -50%) rotate(45deg);
+  border: 3px solid rgba(255, 255, 255, 0.9);
+  border-radius: 3px;
+  background: linear-gradient(135deg, rgba(0, 181, 226, 0.6), transparent);
+}
+.mcard-back::after {              /* the kite string */
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 64%;
+  width: 2px;
+  height: 22%;
+  background: rgba(255, 255, 255, 0.6);
+  transform: rotate(18deg);
+  transform-origin: top;
+}
+
+/* Front: logo on a dark tile (white logos) or light tile (colored logos) */
+.mcard-front {
+  transform: rotateY(180deg);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: 10% 8% 8%;
+}
+.mcard-front.dark { background: var(--night-2); color: var(--night-text); border: 1px solid #2e2e2e; }
+.mcard-front.light { background: #fff; color: var(--night); border: 1px solid var(--border); }
+.mcard-front img { flex: 1; min-height: 0; width: 100%; object-fit: contain; }
+.mcard-front .mlabel {
+  font-size: clamp(0.58rem, 2.6vw, 0.78rem);
+  font-weight: 800;
+  line-height: 1.1;
+  text-align: center;
+}
+.mcard.matched .mcard-front { box-shadow: 0 0 0 3px var(--success); }
+.mcard.matched .mcard-inner { animation: mem-pop 0.4s 0.3s; }
+@keyframes mem-pop { 50% { transform: rotateY(180deg) scale(1.08); } }
+.mcard.nope .mcard-front { box-shadow: 0 0 0 3px var(--danger); }
+
+.mem-end {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  background: rgba(0, 0, 0, 0.6);
+}
+.mem-end-box { width: 100%; max-width: 420px; margin: 0; }

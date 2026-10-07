@@ -802,6 +802,12 @@
                 this.distanceMeter.setHighScore(this.highestScore);
             }
 
+            // IEEE Arcade: send the distance score (the number shown on screen), see bug-runner.js
+            if (window.BugRunner) {
+                window.BugRunner.onGameOver(
+                    this.distanceMeter.getActualDistance(Math.ceil(this.distanceRan)));
+            }
+
             // Reset the time clock.
             this.time = getTimeStamp();
         },
@@ -855,6 +861,12 @@
          * Sets the scaling for arcade mode.
          */
         setArcadeModeContainerScale() {
+            // IEEE Arcade: our page lays out the canvas itself (it fits the phone
+            // width), so the original full-window scaling is turned off.
+            if (window.BugRunner) {
+                this.containerEl.style.transform = '';
+                return;
+            }
             const windowHeight = window.innerHeight;
             const scaleHeight = windowHeight / this.dimensions.HEIGHT;
             const scaleWidth = window.innerWidth / this.dimensions.WIDTH;

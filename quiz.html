@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#0a0a0a">
+  <title>Quiz – IEEE Arcade</title>
+  <link rel="icon" href="assets/img/sb-icon.png">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+  <header class="topbar">
+    <a class="back-btn" href="index.html">← Arcade</a>
+    <span class="sb-logo">
+      <img class="logo-img" src="assets/img/sb-logo-white.png" alt="IEEE ISIMA Student Branch logo"
+           onerror="this.hidden = true; this.nextElementSibling.hidden = false;">
+      <span class="logo-fallback" hidden>IEEE ISIMA SB</span>
+    </span>
+    <h1 class="topbar-title" id="quiz-topbar-title">Quiz</h1>
+    <span class="player-chip" data-player-chip></span>
+  </header>
+
+  <main class="container quiz">
+
+    <p id="quiz-loading" class="center small" style="margin-top:40px">Loading questions…</p>
+
+    <!-- Error -->
+    <section id="quiz-error" class="card center" hidden>
+      <h2>Oops!</h2>
+      <p id="quiz-error-text">The questions couldn't be loaded.</p>
+      <a class="btn btn-primary" href="index.html">Back to Arcade</a>
+    </section>
+
+    <!-- Intro -->
+    <section id="quiz-intro" class="card" hidden>
+      <span class="tag">IEEE Quiz</span>
+      <h2 id="quiz-title" style="margin-top:10px"></h2>
+      <p id="quiz-description"></p>
+      <p class="quiz-rules" id="quiz-rules"></p>
+      <p class="notice" id="quiz-not-joined" hidden>You haven't joined yet: your points won't appear on the scoreboard.
+        <a href="index.html">Join the Arcade first</a>.</p>
+      <button type="button" class="btn btn-primary btn-block btn-lg" id="quiz-start" style="margin-top:14px">Start the quiz</button>
+    </section>
+
+    <!-- Question -->
+    <section id="quiz-question" hidden>
+      <div class="quiz-meta">
+        <span id="quiz-progress">Question 1 / 10</span>
+        <span id="quiz-points">0 pts</span>
+      </div>
+      <div class="timer" aria-hidden="true"><div class="timer-fill" id="quiz-timer"></div></div>
+      <div class="card">
+        <h2 class="quiz-q" id="quiz-q"></h2>
+        <div class="options" id="quiz-options"></div>
+        <div class="feedback" id="quiz-feedback" hidden aria-live="polite">
+          <p class="feedback-title" id="quiz-feedback-title"></p>
+          <p class="feedback-explain" id="quiz-feedback-explain"></p>
+          <button type="button" class="btn btn-blue btn-block" id="quiz-next">Next question →</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Result -->
+    <section id="quiz-result" class="card center" hidden>
+      <div class="result-emoji" id="result-emoji" aria-hidden="true">🎉</div>
+      <h2 id="result-title">Quiz complete!</h2>
+      <p class="result-correct" id="result-correct"></p>
+      <p class="result-points" id="result-points"></p>
+      <p class="small" id="result-best"></p>
+      <div class="btn-row" style="margin-top:16px">
+        <button type="button" class="btn btn-primary" id="quiz-again">Play again</button>
+        <a class="btn btn-ghost" href="index.html">Back to Arcade</a>
+      </div>
+      <a class="discover-link" href="chapters.html">Discover our chapters →</a>
+    </section>
+  </main>
+
+  <footer id="site-footer" class="site-footer"></footer>
+
+  <script src="js/config.js"></script>
+  <script src="js/arcade.js"></script>
+  <script src="js/layout.js" data-root=""></script>
+  <script src="js/quiz.js"></script>
+</body>
+</html>

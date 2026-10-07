@@ -24,10 +24,10 @@
   var ACTIVITIES = [
     { id: "quiz-ieee",   type: "quiz", icon: "🌍", title: "IEEE 101",                     subtitle: "How well do you know IEEE?",     url: "quiz.html?set=quiz-ieee" },
     { id: "quiz-cs",     type: "quiz", icon: "💻", title: "Computer Society & Standards", subtitle: "Wi-Fi, Ethernet, floating point…", url: "quiz.html?set=quiz-cs" },
-    { id: "quiz-sb",     type: "quiz", icon: "🎓", title: "Our Student Branch",           subtitle: "Meet the ISIMA Student Branch",   url: "quiz.html?set=quiz-sb" },
+    { id: "quiz-sb",     type: "quiz", icon: "🎓", title: "Our Student Branch & Chapters", subtitle: "CS, CIS, RAS, WIE and our events", url: "quiz.html?set=quiz-sb" },
     { id: "game-2048",   type: "game", icon: "🧩", title: "IEEE Journey",                 subtitle: "2048 – from Curious to IEEE Hero", url: "games/2048/index.html" },
     { id: "game-trex",   type: "game", icon: "🐞", title: "Bug Runner",                   subtitle: "Dodge the bugs, tap to jump",      url: "games/t-rex/index.html" },
-    { id: "game-memory", type: "game", icon: "🃏", title: "Tech Match",                   subtitle: "Find the 8 tech pairs",            url: "games/memory/index.html" }
+    { id: "game-memory", type: "game", icon: "🃏", title: "Tech Match",                   subtitle: "Match our chapter & partner logos", url: "games/memory/index.html" }
   ];
 
   // ======================================================================
@@ -141,7 +141,7 @@
         return res.text().then(function (text) {
           var data = null;
           try { data = text ? JSON.parse(text) : null; } catch (e) { data = text; }
-          return { ok: res.ok, status: res.status, data: data };
+          return { ok: res.ok, status: res.status, data: data, headers: res.headers };
         });
       }).catch(function () {
         clearTimeout(timer);
@@ -303,6 +303,35 @@
     });
   }
 
+  // Global stats for the dashboard (the leaderboard only returns the top 100).
+  // Resolves { ok, players, totalPoints } or { ok: false, error }.
+  function getStats() {
+    var PAGE = 1000;
+
+    var countPlayers = request("GET", "/rest/v1/players?select=nickname&limit=1", undefined, { Prefer: "count=exact" })
+      .then(function (r) {
+        if (!r.ok) return null;
+        // Content-Range looks like "0-0/42": the number after "/" is the total.
+        var range = (r.headers && r.headers.get("Content-Range")) || "";
+        var total = parseInt(range.split("/")[1], 10);
+        return isNaN(total) ? null : total;
+      });
+
+    function sumScores(offset, sum) {
+      return request("GET", "/rest/v1/scores?select=score&order=nickname,activity&limit=" + PAGE + "&offset=" + offset)
+        .then(function (r) {
+          if (!r.ok || !Array.isArray(r.data)) return null;
+          r.data.forEach(function (row) { sum += Number(row.score) || 0; });
+          return r.data.length === PAGE ? sumScores(offset + PAGE, sum) : sum;
+        });
+    }
+
+    return Promise.all([countPlayers, sumScores(0, 0)]).then(function (results) {
+      if (results[0] === null || results[1] === null) return { ok: false, error: "Stats unavailable" };
+      return { ok: true, players: results[0], totalPoints: results[1] };
+    });
+  }
+
   // ---------- Staff reset ----------
 
   function reset() {
@@ -366,6 +395,7 @@
     hasPendingScores: hasPendingScores,
     flushQueue: flushQueue,
     getLeaderboard: getLeaderboard,
+    getStats: getStats,
     enableStaffReset: enableStaffReset,
     reset: reset
   };

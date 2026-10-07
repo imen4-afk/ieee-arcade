@@ -62,7 +62,9 @@ HTMLActuator.prototype.addTile = function (tile) {
   this.applyClasses(wrapper, classes);
 
   inner.classList.add("tile-inner");
-  inner.textContent = tile.value;
+  // IEEE Arcade: show the journey label instead of the number (see js/ieee_arcade.js)
+  inner.textContent = IEEEJourney.label(tile.value);
+  inner.setAttribute("data-value", tile.value);
 
   if (tile.previousPosition) {
     // Make sure that the tile gets rendered in the previous position first
@@ -126,10 +128,13 @@ HTMLActuator.prototype.updateBestScore = function (bestScore) {
 
 HTMLActuator.prototype.message = function (won) {
   var type    = won ? "game-won" : "game-over";
-  var message = won ? "You win!" : "Game over!";
+  var message = won ? "IEEE Hero!" : "Game over!"; // IEEE Arcade: themed win text
 
   this.messageContainer.classList.add(type);
   this.messageContainer.getElementsByTagName("p")[0].textContent = message;
+
+  // IEEE Arcade: send the arcade points for this game (see js/ieee_arcade.js)
+  IEEEJourney.onGameEnd(won, this.score);
 };
 
 HTMLActuator.prototype.clearMessage = function () {

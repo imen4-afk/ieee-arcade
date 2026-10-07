@@ -1,0 +1,65 @@
+/* ==========================================================================
+   Bug Runner – IEEE Arcade theme for the T-Rex runner (loaded after index.css).
+   The game logic and sprite sheet are unchanged: the canvas is only recolored
+   with a CSS filter and placed on an IEEE-blue "stage" that fits the phone width.
+   ========================================================================== */
+
+html, body { height: auto; }
+body.offline { background: var(--bg); color: var(--text); font-family: var(--font); }
+
+.bug-head { text-align: center; padding: 18px 16px 8px; }
+.bug-head h1 { font-size: clamp(1.25rem, 5.5vw, 1.8rem); margin-bottom: 6px; }
+.bug-howto {
+  display: inline-block;
+  margin: 0 0 6px;
+  padding: 6px 14px;
+  border-radius: 999px;
+  background: var(--grad-orange);
+  color: var(--on-orange);
+  font-weight: 800;
+}
+
+/* The game stage: IEEE blue with a subtle circuit grid */
+.offline .interstitial-wrapper,
+.arcade-mode .interstitial-wrapper {
+  position: relative;            /* the canvas is positioned inside the stage, not the page */
+  height: 182px;
+  max-width: 600px;
+  margin: 8px auto 0;
+  padding: 0;
+  overflow: hidden;
+  background-color: var(--ieee-blue);
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.07) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.07) 1px, transparent 1px),
+    linear-gradient(180deg, var(--ieee-blue), var(--ieee-dark));
+  background-size: 24px 24px, 24px 24px, 100% 100%;
+}
+@media (min-width: 600px) {
+  .offline .interstitial-wrapper,
+  .arcade-mode .interstitial-wrapper { border-radius: var(--radius); }
+}
+
+/* hide Chrome's "no internet" dino icon behind the game */
+#main-content { opacity: 0; }
+
+.offline .runner-container { top: 16px; }
+
+/* Recolor: every sprite becomes white, so the runner and the bugs pop on IEEE blue */
+.runner-canvas { filter: brightness(0) invert(1); }
+
+/* the original full-screen touch area must stay under our links */
+.offline .controller { background: transparent; }
+
+.bug-result { position: relative; z-index: 3; max-width: 420px; margin: 14px auto 0; }
+.bug-points {
+  margin: 0;
+  font-size: 1.8rem;
+  font-weight: 900;
+  background: var(--grad-orange);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+.bug-credit { position: relative; z-index: 3; text-align: center; padding: 16px; }
+.topbar { z-index: 20; }

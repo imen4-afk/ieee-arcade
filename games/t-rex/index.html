@@ -1,20 +1,41 @@
 <!doctype html>
-<html>
+<html lang="en">
 
 <head>
     <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0,maximum-scale=1.0, user-scalable=no">
-    <title >chrome easter egg: t-rex runner</title>
+    <!-- IEEE Arcade: viewport, title and theme changed; the remote Google Font was removed (offline-friendly) -->
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#0a0a0a">
+    <title>Bug Runner – IEEE Arcade</title>
+    <link rel="icon" href="../../assets/img/sb-icon.png">
+    <link rel="stylesheet" href="../../css/style.css">
     <link rel="stylesheet" href="index.css">
-    <link href="https://fonts.googleapis.com/css?family=Open+Sans" rel="stylesheet"> 
+    <link rel="stylesheet" href="bug-runner.css">
+    <script src="../../js/config.js"></script>
+    <script src="../../js/arcade.js"></script>
+    <script src="bug-runner.js"></script>
     <script src="index.js"></script>
 </head>
 
 <body id="t" class="offline">
-    <div id="messageBox" class="sendmessage">
-         <h1 style="text-align: center;font-family: 'Open Sans', sans-serif;">Press Space to start</h1>
-         <div class="niokbutton" onclick="okbuttonsend()"></div>
-    </div>
+    <!-- IEEE Arcade: shared top bar, title and instructions (replaces the "Press Space to start" box) -->
+    <header class="topbar">
+        <a class="back-btn" href="../../index.html">← Arcade</a>
+        <span class="sb-logo">
+            <img class="logo-img" src="../../assets/img/sb-logo-white.png" alt="IEEE ISIMA Student Branch logo"
+                 onerror="this.hidden = true; this.nextElementSibling.hidden = false;">
+            <span class="logo-fallback" hidden>IEEE ISIMA SB</span>
+        </span>
+        <span class="topbar-title">IEEE ISIMA SB</span>
+        <span class="player-chip" data-player-chip></span>
+    </header>
+
+    <section class="bug-head">
+        <h1>Bug Runner – dodge the bugs!</h1>
+        <p class="bug-howto" id="bug-howto">Tap to jump</p>
+        <p class="small" id="bug-best"></p>
+    </section>
+
     <div id="main-frame-error" class="interstitial-wrapper">
         <div id="main-content">
             <div class="icon icon-offline" alt=""></div>
@@ -29,16 +50,22 @@
             </template>
         </div>
     </div>
+
+    <!-- IEEE Arcade: end-of-run result + chapters link -->
+    <section class="bug-result card center" id="bug-result" hidden aria-live="polite">
+        <p class="bug-points" id="bug-points"></p>
+        <p class="small" id="bug-detail"></p>
+        <p class="small">Tap the game to run again!</p>
+        <a class="discover-link" href="../../chapters.html">Discover our chapters →</a>
+    </section>
+
+    <section class="bug-credit small">
+        Based on <a href="https://github.com/wayou/t-rex-runner" target="_blank" rel="noopener">T-Rex Runner</a>
+        by wayou, extracted from Chromium (BSD 3-Clause License).
+    </section>
+
+    <footer id="site-footer" class="site-footer"></footer>
+    <script src="../../js/layout.js" data-root="../../"></script>
 </body>
 
-<script>
-    document.onkeydown = function(evt) {
-    evt = evt || window.event;
-    if (evt.keyCode == 32) {
-        var box = document.getElementById("messageBox");
-        box.style.visibility="hidden";
-    }
-};
-</script>
-    
 </html>

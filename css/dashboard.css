@@ -1,0 +1,161 @@
+/* ==========================================================================
+   IEEE Arcade – big-screen dashboard (dashboard.html)
+   Designed for 1920x1080 landscape, readable from ~3 m, no scrolling.
+   Sizes use vh/vw so it also fits other screen sizes. Always dark.
+   ========================================================================== */
+
+body.dash {
+  height: 100vh;
+  overflow: hidden;
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  gap: 1.6vh;
+  padding: 2vh 2vw;
+  color: var(--night-text);
+  background-color: var(--night);
+  background-image:
+    radial-gradient(60vw 40vh at 100% 0%, rgba(118, 75, 162, 0.35), transparent 70%),
+    radial-gradient(50vw 40vh at 0% 100%, rgba(37, 99, 235, 0.25), transparent 70%),
+    linear-gradient(rgba(255, 255, 255, 0.035) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.035) 1px, transparent 1px);
+  background-size: auto, auto, 4vh 4vh, 4vh 4vh;
+  font-size: 2.2vh;
+  color-scheme: dark;
+}
+
+/* ---------- Top ---------- */
+.dash-top { display: flex; align-items: center; gap: 2vw; }
+.dash-logos { display: flex; align-items: center; gap: 1.2vw; }
+.dash-sb { display: flex; align-items: center; height: 7vh; font-weight: 800; }
+.dash-sb img { height: 100%; width: auto; object-fit: contain; }
+.dash-chapter {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 7vh;
+  height: 7vh;
+  padding: 0.8vh;
+  border-radius: 1.2vh;
+  background: var(--night-2);
+  border: 1px solid #2e2e2e;
+  font-weight: 800;
+  font-size: 1.8vh;
+}
+.dash-chapter img { width: 100%; height: 100%; object-fit: contain; }
+.dash-title { flex: 1; text-align: center; }
+.dash-title .tag { font-size: 1.4vh; }
+.dash-title h1 { margin: 0.6vh 0 0; font-size: 5vh; font-weight: 900; letter-spacing: -0.02em; }
+.dash-title h1 span {
+  background: var(--grad-orange);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+#dash-fullscreen { font-size: 1.8vh; }
+
+/* ---------- Main ---------- */
+.dash-main {
+  min-height: 0;
+  display: grid;
+  grid-template-columns: 1fr 26vw;
+  gap: 1.6vw;
+}
+
+.dash-board {
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  padding: 1.4vh 1.2vw;
+  border-radius: 2vh;
+  background: rgba(23, 23, 23, 0.85);
+  border: 1px solid #262626;
+}
+.dash-list { list-style: none; margin: 0; padding: 0; flex: 1; display: flex; flex-direction: column; gap: 0.8vh; }
+
+.dash-row {
+  display: grid;
+  grid-template-columns: 6vh 1fr repeat(6, 5vw) 8vw;
+  align-items: center;
+  gap: 0.6vw;
+  height: 5.9vh;
+  padding: 0 1vw;
+  border-radius: 1.2vh;
+  font-variant-numeric: tabular-nums;
+}
+.dash-head { height: 4vh; color: var(--night-muted); font-weight: 800; font-size: 1.9vh; }
+.dash-list .dash-row { background: var(--night-3); position: relative; will-change: transform; }
+.c-rank { text-align: center; font-weight: 900; font-size: 2.6vh; }
+.c-name { font-weight: 800; font-size: 2.8vh; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.c-act { text-align: center; color: var(--night-muted); font-size: 2.2vh; }
+.dash-head .c-act { font-size: 2.6vh; }
+.c-total { text-align: right; font-weight: 900; font-size: 3vh; color: var(--orange-soft); }
+
+/* podium accents */
+.dash-list .rank-1 { background: linear-gradient(90deg, rgba(245, 197, 66, 0.35), var(--night-3) 60%); box-shadow: inset 0.5vh 0 0 #f5c542; }
+.dash-list .rank-2 { background: linear-gradient(90deg, rgba(192, 199, 208, 0.28), var(--night-3) 60%); box-shadow: inset 0.5vh 0 0 #c0c7d0; }
+.dash-list .rank-3 { background: linear-gradient(90deg, rgba(205, 138, 79, 0.3), var(--night-3) 60%); box-shadow: inset 0.5vh 0 0 #cd8a4f; }
+.dash-list .rank-1 .c-rank, .dash-list .rank-2 .c-rank, .dash-list .rank-3 .c-rank { font-size: 3.4vh; }
+.dash-list .rank-1 .c-name { font-size: 3.2vh; }
+
+/* new player / rank change highlights */
+.dash-row.is-new { animation: dash-new 2.4s ease-out; }
+@keyframes dash-new {
+  0% { box-shadow: 0 0 0 0.4vh var(--orange), 0 0 3vh rgba(249, 156, 0, 0.7); }
+  100% { box-shadow: 0 0 0 0 transparent; }
+}
+.dash-row.moved-up .c-name::after { content: " ▲"; color: var(--success); font-size: 2vh; }
+
+.dash-empty { text-align: center; color: var(--night-muted); font-size: 3vh; margin: auto; }
+
+/* ---------- Side panels ---------- */
+.dash-side { min-height: 0; display: flex; flex-direction: column; gap: 1.6vh; }
+.dash-card {
+  padding: 1.8vh 1.2vw;
+  border-radius: 2vh;
+  background: rgba(23, 23, 23, 0.85);
+  border: 1px solid #262626;
+}
+.dash-qr { display: flex; align-items: center; gap: 1.2vw; background: #fff; color: var(--night); border: 0; }
+.qr-box {
+  flex: 0 0 auto;
+  width: 19vh;
+  height: 19vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.qr-box img { width: 100%; height: 100%; object-fit: contain; image-rendering: pixelated; }
+.qr-placeholder { width: 100%; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; border: 0.4vh dashed #a1a1a1; border-radius: 1vh; color: #737373; font-weight: 800; text-align: center; }
+.qr-label { margin: 0; font-size: 3.4vh; font-weight: 900; line-height: 1.1; }
+.qr-url { margin: 0.6vh 0 0; font-size: 1.65vh; font-weight: 800; color: var(--blue); white-space: nowrap; }
+
+.dash-award { flex: 1; display: flex; flex-direction: column; justify-content: center; }
+.award-label { margin: 0; color: var(--night-muted); font-weight: 800; font-size: 2.2vh; text-transform: uppercase; letter-spacing: 0.06em; }
+.award-name { margin: 0.4vh 0 0; font-size: 3.6vh; font-weight: 900; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.award-score { margin: 0; color: var(--orange-soft); font-weight: 800; font-size: 2.4vh; }
+
+.dash-live { display: grid; grid-template-columns: 1fr 1fr; gap: 1vw; text-align: center; }
+.dash-live strong, .dash-strip strong {
+  display: block;
+  font-size: 4.4vh;
+  font-weight: 900;
+  line-height: 1.1;
+  background: var(--grad-orange);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  font-variant-numeric: tabular-nums;
+}
+.dash-live span, .dash-strip span { color: var(--night-muted); font-size: 1.8vh; font-weight: 700; }
+
+/* ---------- Bottom ---------- */
+.dash-bottom { display: flex; align-items: center; gap: 2vw; }
+.dash-mascot { height: 8vh; width: auto; }
+.dash-strip { flex: 1; display: flex; justify-content: center; gap: 5vw; text-align: center; }
+.dash-strip strong { font-size: 4vh; }
+.dash-status { margin: 0; color: var(--night-muted); font-size: 1.6vh; min-width: 16vw; text-align: right; }
+.dash-status.offline { color: #f87171; }
+
+@media (prefers-reduced-motion: reduce) {
+  .dash-row.is-new { animation: none; outline: 0.3vh solid var(--orange); }
+}

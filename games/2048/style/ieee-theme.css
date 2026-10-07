@@ -1,0 +1,158 @@
+/* ==========================================================================
+   IEEE Journey – IEEE Arcade theme for 2048 (loaded AFTER style/main.css).
+   Only overrides colors, fonts and the end screen; the layout sizes are the
+   original ones (280px board on phones, 500px on bigger screens).
+   ========================================================================== */
+
+html, body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font);
+}
+body { margin: 0; padding: 0; }
+
+/* the shared .container from css/style.css must not change the game width */
+.container { padding: 0; max-width: none; margin: 18px auto 0; }
+
+h1.title { color: var(--text); font-size: 40px; line-height: 1.3; letter-spacing: -0.02em; }
+.game-intro { color: var(--muted); }
+.game-explanation, .container > p { color: var(--muted); }
+.container hr { border: 0; border-top: 1px solid var(--border); }
+.container a { color: var(--link); }
+
+.score-container, .best-container {
+  box-sizing: content-box;       /* the original sizes assume content-box (css/style.css sets border-box) */
+  background: var(--night-2);
+  color: var(--night-text);
+  border-radius: 10px;
+}
+.score-container:after, .best-container:after { color: var(--night-muted); }
+.score-addition { color: var(--orange-soft); }
+
+.container a.restart-button,
+.game-container .game-message a.retry-button,
+.game-container .game-message a.keep-playing-button {
+  background: var(--grad-orange);
+  color: var(--on-orange);
+  border-radius: 999px;
+  font-weight: 800;
+}
+
+/* ---- Board: dark with a subtle circuit-board pattern (pure CSS) ---- */
+.game-container {
+  background-color: var(--night-2);
+  background-image:
+    radial-gradient(circle at 10px 10px, rgba(0, 181, 226, 0.22) 2px, transparent 2.5px),
+    linear-gradient(90deg, rgba(0, 181, 226, 0.10) 1px, transparent 1px),
+    linear-gradient(rgba(0, 181, 226, 0.10) 1px, transparent 1px);
+  background-size: 40px 40px, 40px 20px, 20px 40px;
+  border-radius: 12px;
+  box-shadow: var(--shadow);
+}
+.grid-cell { background: rgba(255, 255, 255, 0.06); border-radius: 6px; }
+
+/* ---- Tiles: labels instead of numbers ---- */
+.game-container .tile .tile-inner {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 3px;
+  box-sizing: border-box;
+  border-radius: 6px;
+  font-family: var(--font);
+  font-weight: 800;
+  font-size: 20px;
+  line-height: 1.05;
+  letter-spacing: -0.02em;
+  text-align: center;
+  word-break: normal;
+  overflow-wrap: normal;
+}
+/* the original number, small in the corner (helps players plan merges) */
+.game-container .tile .tile-inner::after {
+  content: attr(data-value);
+  position: absolute;
+  right: 6px;
+  bottom: 4px;
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 1;
+  opacity: 0.6;
+}
+
+/* Colors: light blue → IEEE blue → CS orange for the highest tiles */
+.game-container .tile.tile-2 .tile-inner    { background: #e3f3fb; color: #0a2540; box-shadow: none; }
+.game-container .tile.tile-4 .tile-inner    { background: #c6e8f7; color: #0a2540; box-shadow: none; }
+.game-container .tile.tile-8 .tile-inner    { background: #8fd4f0; color: #0a2540; }
+.game-container .tile.tile-16 .tile-inner   { background: #3fbfe6; color: #04243d; }
+.game-container .tile.tile-32 .tile-inner   { background: #00a3d6; color: #fff; }
+.game-container .tile.tile-64 .tile-inner   { background: #0080bd; color: #fff; }
+.game-container .tile.tile-128 .tile-inner  { background: #00629b; color: #fff; box-shadow: 0 0 18px rgba(0, 98, 155, 0.5); }
+.game-container .tile.tile-256 .tile-inner  { background: #004a7a; color: #fff; box-shadow: 0 0 18px rgba(0, 74, 122, 0.55); }
+.game-container .tile.tile-512 .tile-inner  { background: #002855; color: #fff; box-shadow: 0 0 20px rgba(0, 181, 226, 0.45); }
+.game-container .tile.tile-1024 .tile-inner { background: #ffaa40; color: #1a1100; box-shadow: 0 0 24px rgba(255, 170, 64, 0.6); }
+.game-container .tile.tile-2048 .tile-inner { background: linear-gradient(135deg, #ffaa40, #f99c00); color: #1a1100; box-shadow: 0 0 30px rgba(249, 156, 0, 0.8); }
+.game-container .tile.tile-super .tile-inner { background: linear-gradient(135deg, #667eea, #764ba2); color: #fff; }
+
+/* Long labels a bit smaller */
+.game-container .tile.tile-16 .tile-inner { font-size: 17px; }   /* Volunteer */
+
+/* ---- Phones (original 280px board, 58px tiles) ---- */
+@media screen and (max-width: 520px) {
+  h1.title { font-size: 24px; margin-top: 8px; }
+  .container { margin-top: 14px; }
+
+  .game-container .tile .tile-inner { font-size: 11.5px; padding: 0 2px; letter-spacing: -0.03em; }
+  .game-container .tile.tile-16 .tile-inner { font-size: 9.5px; }              /* Volunteer */
+  .game-container .tile.tile-2048 .tile-inner,
+  .game-container .tile.tile-super .tile-inner { font-size: 11px; }           /* IEEE Hero (2 lines) */
+  .game-container .tile .tile-inner::after { font-size: 8px; right: 3px; bottom: 2px; }
+}
+
+/* ---- End screen (win / game over) ---- */
+.game-container .game-message { background: rgba(10, 10, 10, 0.84); color: #fff; border-radius: 12px; }
+.game-container .game-message.game-won { background: rgba(10, 10, 10, 0.84); color: #fff; }
+.game-container .game-message.game-won,
+.game-container .game-message.game-over {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  text-align: center;
+}
+.game-container .game-message p {
+  margin: 0;
+  height: auto;
+  font-size: 40px;
+  line-height: 1.1;
+  font-weight: 900;
+  color: #fff;
+}
+.game-container .game-message .lower { margin: 6px 0 0; }
+.arcade-result { display: flex; flex-direction: column; gap: 2px; }
+.arcade-points { font-size: 22px; font-weight: 900; color: var(--orange-soft); }
+.arcade-best { font-size: 14px; color: var(--night-muted); }
+/* the original styles every link in the message as a brown button: undo that for ours */
+.game-container .game-message a.discover-link {
+  background: none;
+  height: auto;
+  min-height: 44px;
+  line-height: 1.2;
+  margin: 0;
+  padding: 6px 8px;
+  color: var(--orange-soft);
+  font-size: 14px;
+  font-weight: 700;
+}
+
+@media screen and (max-width: 520px) {
+  .game-container .game-message { gap: 4px; }
+  .game-container .game-message p { font-size: 26px; }
+  .arcade-points { font-size: 18px; }
+  .game-container .game-message .lower { margin-top: 2px; }
+  .game-container .game-message a { height: 36px; line-height: 38px; }
+}
+
+.site-footer { margin-top: 28px; }

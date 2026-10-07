@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#0a0a0a">
+  <title>Live Scoreboard – IEEE Arcade</title>
+  <link rel="icon" href="assets/img/sb-icon.png">
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/dashboard.css">
+</head>
+<body class="dash">
+
+  <!-- ===== Top: SB logo + chapter logos + title ===== -->
+  <header class="dash-top">
+    <div class="dash-logos">
+      <span class="dash-sb">
+        <img src="assets/img/sb-logo-white.png" alt="IEEE ISIMA Student Branch logo"
+             onerror="this.replaceWith('IEEE ISIMA SB')">
+      </span>
+      <span class="dash-chapter"><img src="assets/img/chapters/cs.png" alt="IEEE Computer Society" onerror="this.replaceWith('CS')"></span>
+      <span class="dash-chapter"><img src="assets/img/chapters/cis.png" alt="IEEE Computational Intelligence Society" onerror="this.replaceWith('CIS')"></span>
+      <span class="dash-chapter"><img src="assets/img/chapters/ras.png" alt="IEEE Robotics and Automation Society" onerror="this.replaceWith('RAS')"></span>
+      <span class="dash-chapter"><img src="assets/img/chapters/wie.png" alt="IEEE Women in Engineering" onerror="this.replaceWith('WIE')"></span>
+    </div>
+    <div class="dash-title">
+      <span class="tag">IEEE</span> <span class="tag tag-blue">Live</span>
+      <h1>IEEE Arcade <span>Scoreboard</span></h1>
+    </div>
+    <button type="button" class="btn btn-ghost-dark" id="dash-fullscreen">⛶ Fullscreen</button>
+  </header>
+
+  <!-- ===== Middle: top 10 + side panels ===== -->
+  <main class="dash-main">
+    <section class="dash-board" aria-label="Top 10">
+      <div class="dash-row dash-head" aria-hidden="true">
+        <span class="c-rank">#</span>
+        <span class="c-name">Player</span>
+        <span class="c-act" title="IEEE 101">🌍</span>
+        <span class="c-act" title="Computer Society &amp; Standards">💻</span>
+        <span class="c-act" title="Our Student Branch &amp; Chapters">🎓</span>
+        <span class="c-act" title="IEEE Journey (2048)">🧩</span>
+        <span class="c-act" title="Bug Runner">🐞</span>
+        <span class="c-act" title="Tech Match">🃏</span>
+        <span class="c-total">Total</span>
+      </div>
+      <ol class="dash-list" id="dash-list"></ol>
+      <p class="dash-empty" id="dash-empty" hidden>No players yet. Scan the QR code and be the first! 🚀</p>
+    </section>
+
+    <aside class="dash-side">
+      <div class="dash-card dash-qr">
+        <div class="qr-box">
+          <img src="assets/img/qr.png" alt="QR code to open the IEEE Arcade"
+               onerror="this.hidden = true; this.nextElementSibling.hidden = false;">
+          <span class="qr-placeholder" hidden>QR code<br><small>add assets/img/qr.png</small></span>
+        </div>
+        <div>
+          <p class="qr-label">Scan to play!</p>
+          <p class="qr-url" id="dash-url">ieee-arcade.vercel.app</p>
+        </div>
+      </div>
+
+      <div class="dash-card dash-award">
+        <p class="award-label">🧠 Best quiz master</p>
+        <p class="award-name" id="best-quiz">–</p>
+        <p class="award-score" id="best-quiz-score"></p>
+      </div>
+
+      <div class="dash-card dash-award">
+        <p class="award-label">🎮 Best gamer</p>
+        <p class="award-name" id="best-gamer">–</p>
+        <p class="award-score" id="best-gamer-score"></p>
+      </div>
+
+      <div class="dash-card dash-live">
+        <div><strong id="stat-players">–</strong><span>players</span></div>
+        <div><strong id="stat-points">–</strong><span>points scored</span></div>
+      </div>
+    </aside>
+  </main>
+
+  <!-- ===== Bottom: SB stats strip ===== -->
+  <footer class="dash-bottom">
+    <img class="dash-mascot" src="assets/img/mascot-animated.png" alt="" onerror="this.hidden = true;">
+    <div class="dash-strip">
+      <div><strong>190+</strong><span>members</span></div>
+      <div><strong>35</strong><span>officers</span></div>
+      <div><strong>4</strong><span>chapters &amp; affinity groups</span></div>
+    </div>
+    <p class="dash-status" id="dash-status">Connecting…</p>
+  </footer>
+
+  <script src="js/config.js"></script>
+  <script src="js/arcade.js"></script>
+  <script src="js/dashboard.js"></script>
+</body>
+</html>
