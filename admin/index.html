@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="referrer" content="no-referrer">
+  <meta name="theme-color" content="#0a0a0a">
+  <title>Admin – IEEE Arcade</title>
+  <link rel="icon" href="../assets/img/sb-icon.png">
+  <link rel="stylesheet" href="../css/style.css">
+  <link rel="stylesheet" href="admin.css">
+</head>
+<body class="admin">
+
+  <header class="topbar">
+    <span class="sb-logo">
+      <img class="logo-img" src="../assets/img/sb-logo-white.png" alt="IEEE ISIMA Student Branch logo"
+           onerror="this.hidden = true; this.nextElementSibling.hidden = false;">
+      <span class="logo-fallback" hidden>IEEE ISIMA SB</span>
+    </span>
+    <h1 class="topbar-title">Arcade admin</h1>
+    <span class="admin-user" id="admin-user" hidden></span>
+    <button type="button" class="btn btn-ghost-dark admin-logout" id="logout-btn" hidden>Log out</button>
+  </header>
+
+  <main class="container admin-main">
+
+    <!-- ===== Login (Supabase Auth) ===== -->
+    <section class="card admin-login" id="login-view" hidden>
+      <h2>🔐 Admin login</h2>
+      <p class="small">For IEEE ISIMA SB committee members with an admin account.</p>
+      <p class="notice" id="login-notice" hidden></p>
+      <form id="login-form" novalidate>
+        <label for="login-email">Email</label>
+        <input id="login-email" type="email" autocomplete="username" autocapitalize="off" spellcheck="false" required>
+        <label for="login-password">Password</label>
+        <input id="login-password" type="password" autocomplete="current-password" required>
+        <p class="form-error" id="login-error" role="alert" hidden></p>
+        <button type="submit" class="btn btn-primary btn-block btn-lg" id="login-btn">Log in</button>
+      </form>
+    </section>
+
+    <p class="small center" id="checking" hidden>Checking your session…</p>
+
+    <!-- ===== Admin app ===== -->
+    <section id="app-view" hidden>
+      <div class="tabs admin-tabs" role="tablist" aria-label="Admin sections">
+        <button type="button" role="tab" class="tab" id="tab-events" aria-selected="true" aria-controls="panel-events">📅 Events</button>
+        <button type="button" role="tab" class="tab" id="tab-subscribers" aria-selected="false" aria-controls="panel-subscribers" tabindex="-1">📬 Subscribers</button>
+        <button type="button" role="tab" class="tab" id="tab-reminders" aria-selected="false" aria-controls="panel-reminders" tabindex="-1">✉️ Reminders</button>
+      </div>
+
+      <!-- A) Events -->
+      <div role="tabpanel" id="panel-events" aria-labelledby="tab-events">
+        <form class="card" id="event-form" novalidate>
+          <h2 id="event-form-title">New event</h2>
+          <input type="hidden" id="ev-id">
+
+          <label for="ev-title">Title *</label>
+          <input id="ev-title" type="text" maxlength="150" required>
+
+          <label for="ev-description">Description</label>
+          <textarea id="ev-description" rows="4" maxlength="3000"></textarea>
+
+          <div class="form-grid">
+            <div>
+              <label for="ev-date">Date *</label>
+              <input id="ev-date" type="date" required>
+            </div>
+            <div>
+              <label for="ev-start">Start time *</label>
+              <input id="ev-start" type="time" required>
+            </div>
+            <div>
+              <label for="ev-end">End time</label>
+              <input id="ev-end" type="time">
+            </div>
+            <div>
+              <label for="ev-chapter">Chapter *</label>
+              <select id="ev-chapter">
+                <option value="SB">SB – IEEE ISIMA SB</option>
+                <option value="CS">CS – Computer Society</option>
+                <option value="CIS">CIS – Computational Intelligence</option>
+                <option value="RAS">RAS – Robotics &amp; Automation</option>
+                <option value="WIE">WIE – Women in Engineering</option>
+              </select>
+            </div>
+          </div>
+          <p class="small">Times are Tunis time (Africa/Tunis).</p>
+
+          <label for="ev-location">Location</label>
+          <input id="ev-location" type="text" maxlength="200">
+
+          <label for="ev-url">Registration link (optional, must start with https://)</label>
+          <input id="ev-url" type="url" maxlength="500" placeholder="https://…" autocapitalize="off" spellcheck="false">
+
+          <label class="consent" for="ev-published">
+            <input type="checkbox" id="ev-published" checked>
+            <span><strong>Published</strong> (visible on the public events page). Untick to save as a draft.</span>
+          </label>
+
+          <p class="form-error" id="event-error" role="alert" hidden></p>
+          <div class="btn-row">
+            <button type="submit" class="btn btn-primary" id="event-save">Create event</button>
+            <button type="button" class="btn btn-ghost" id="event-cancel">Clear form</button>
+          </div>
+        </form>
+
+        <div class="admin-list-head">
+          <h2 class="section-title">Events</h2>
+          <button type="button" class="btn btn-ghost" id="events-refresh">↻ Refresh</button>
+        </div>
+        <p class="small" id="events-status"></p>
+        <h3 class="admin-group">This month</h3>
+        <div class="admin-events" id="list-month"></div>
+        <h3 class="admin-group">Later</h3>
+        <div class="admin-events" id="list-later"></div>
+        <h3 class="admin-group">Past (last 60 days)</h3>
+        <div class="admin-events" id="list-past"></div>
+      </div>
+
+      <!-- B) Subscribers -->
+      <div role="tabpanel" id="panel-subscribers" aria-labelledby="tab-subscribers" hidden>
+        <div class="stats">
+          <div class="stat"><span class="stat-value" id="count-active">–</span><span class="stat-label">Active subscribers</span></div>
+          <div class="stat"><span class="stat-value" id="count-unsub">–</span><span class="stat-label">Unsubscribed</span></div>
+        </div>
+        <div class="btn-row">
+          <button type="button" class="btn btn-primary" id="copy-emails">Copy all active emails</button>
+          <button type="button" class="btn btn-ghost" id="export-csv">Export CSV</button>
+          <button type="button" class="btn btn-ghost" id="subs-refresh">↻ Refresh</button>
+        </div>
+        <label for="subs-search" class="admin-search-label">Search</label>
+        <input id="subs-search" type="search" placeholder="Email or nickname" autocapitalize="off" spellcheck="false">
+        <p class="small" id="subs-status"></p>
+        <div class="table-wrap">
+          <table class="admin-table">
+            <thead><tr><th>Email</th><th>Nickname</th><th>Subscribed</th><th>Date</th><th></th></tr></thead>
+            <tbody id="subs-body"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- C) Reminders -->
+      <div role="tabpanel" id="panel-reminders" aria-labelledby="tab-reminders" hidden>
+        <div class="card bcc-warning">
+          <strong>⚠️ Paste the emails in BCC, never in To or CC, so subscribers can't see each other's addresses.</strong>
+          <ol class="small">
+            <li>Pick an event below.</li>
+            <li>Click <em>Open in Gmail</em> (or copy the subject and body into your email app).</li>
+            <li>Click <em>Copy BCC list</em> and paste it into the <strong>Bcc</strong> field. Put your own address in To.</li>
+          </ol>
+        </div>
+        <div class="card">
+          <label for="reminder-event">Upcoming event</label>
+          <select id="reminder-event"></select>
+          <label for="reminder-subject">Subject</label>
+          <input id="reminder-subject" type="text" readonly>
+          <label for="reminder-body">Body</label>
+          <textarea id="reminder-body" rows="14" readonly></textarea>
+          <div class="btn-row">
+            <button type="button" class="btn btn-ghost" id="copy-subject">Copy subject</button>
+            <button type="button" class="btn btn-ghost" id="copy-body">Copy body</button>
+            <button type="button" class="btn btn-ghost" id="copy-bcc">Copy BCC list</button>
+            <a class="btn btn-primary" id="open-gmail" href="#" target="_blank" rel="noopener noreferrer">Open in Gmail ↗</a>
+          </div>
+          <p class="small" id="reminder-status"></p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
+
+  <script src="../js/config.js"></script>
+  <script src="admin.js"></script>
+</body>
+</html>

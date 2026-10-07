@@ -153,6 +153,19 @@ body.dash {
 .dash-mascot { height: 8vh; width: auto; }
 .dash-strip { flex: 1; display: flex; justify-content: center; gap: 5vw; text-align: center; }
 .dash-strip strong { font-size: 4vh; }
+.dash-next {
+  margin: 0;
+  max-width: 30vw;
+  padding: 1vh 1.2vw;
+  border-radius: 1.2vh;
+  background: rgba(249, 156, 0, 0.14);
+  border: 1px solid rgba(249, 156, 0, 0.45);
+  font-size: 2vh;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.dash-next strong { color: var(--orange-soft); }
 .dash-status { margin: 0; color: var(--night-muted); font-size: 1.6vh; min-width: 16vw; text-align: right; }
 .dash-status.offline { color: #f87171; }
 

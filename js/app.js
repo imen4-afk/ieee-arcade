@@ -22,7 +22,29 @@
     $("logout-btn").hidden = !nickname;
     $("menu-user").hidden = !nickname;
     $("menu-user").textContent = nickname ? "Logged in as " + nickname : "";
+    placeEventCards(nickname);
     if (nickname) renderHub(nickname);
+  }
+
+  // "Upcoming events" card (+ the reminders card for logged-in players) right
+  // under the visible panel: the player panel, or the account screen.
+  function placeEventCards(nickname) {
+    var eventsCard = $("events-card");
+    var reminderCard = $("reminder-card");
+    var anchor = nickname ? $("player-panel") : $("auth");
+    anchor.parentNode.insertBefore(eventsCard, anchor.nextSibling);
+    eventsCard.parentNode.insertBefore(reminderCard, eventsCard.nextSibling);
+    var Sub = window.IEEESubscribe;
+    reminderCard.hidden = !nickname || !Sub || Sub.isSubscribed() || Sub.isDismissed();
+  }
+
+  function loadNextEvent() {
+    if (!window.IEEEEvents) return;
+    window.IEEEEvents.fetchUpcoming(1).then(function (r) {
+      if (!r.ok || !r.events.length) return;
+      var ev = r.events[0];
+      $("events-card-next").textContent = "Next: " + ev.title + " · " + window.IEEEEvents.longDate(ev.starts_at);
+    });
   }
 
   function renderHub(nickname) {
@@ -141,6 +163,7 @@
     // lets password managers save a new password / fill a saved one
     pwInput.setAttribute("autocomplete", create ? "new-password" : "current-password");
     submitBtn.textContent = create ? "Create my account" : "Log in";
+    $("auth-reminders").hidden = !create; // the optional email is only asked when creating an account
     showError("");
     checkNickname();
     checkPassword();
@@ -208,16 +231,31 @@
     var problem = Arcade.validateNickname(nickname) || Arcade.validatePassword(password);
     if (problem) { showError(problem); return; }
 
+    // Optional email for reminders (Create account only): valid + consent ticked, or empty.
+    var email = mode === "create" ? $("auth-email").value.trim() : "";
+    var Sub = window.IEEESubscribe;
+    if (email && Sub) {
+      if (!Sub.isValidEmail(email)) { showError(Sub.MESSAGES.invalid); $("auth-email").focus(); return; }
+      if (!authConsent.box.checked) { showError("Tick the box to get reminders, or leave the email empty."); authConsent.box.focus(); return; }
+    }
+
     var label = submitBtn.textContent;
     submitBtn.disabled = true;
     submitBtn.textContent = mode === "create" ? "Creating…" : "Logging in…";
     var action = mode === "create" ? Arcade.register : Arcade.login;
 
     action(nickname, password).then(function (r) {
+      if (!r.ok || !email || !Sub) return r;
+      // Account created: now save the email (a failure here doesn't block the account;
+      // the reminders card on the hub stays visible so the player can retry).
+      return Sub.subscribe(email, Arcade.getNickname()).then(function () { return r; });
+    }).then(function (r) {
       submitBtn.disabled = false;
       submitBtn.textContent = label;
       if (r.ok) {
         pwInput.value = "";
+        $("auth-email").value = "";
+        authConsent.box.checked = false;
         $("auth-notice").hidden = true;
         render();
         window.scrollTo(0, 0);
@@ -280,6 +318,22 @@
 
   // Staff shortcut: long-press the SB logo for 3 s = log out this phone
   Arcade.enableStaffReset($("sb-logo"), function () { showLoginScreen(""); });
+
+  // Event reminders: consent checkbox on "Create account" + the dismissible hub card
+  var authConsent = window.IEEESubscribe
+    ? window.IEEESubscribe.consentField("auth-consent-box")
+    : { wrap: document.createElement("span"), box: { checked: false } };
+  $("auth-consent").appendChild(authConsent.wrap);
+  if (window.IEEESubscribe) {
+    window.IEEESubscribe.mount($("reminder-box"), {
+      onDone: function () { setTimeout(function () { $("reminder-card").hidden = true; }, 2500); }
+    });
+  }
+  $("reminder-dismiss").addEventListener("click", function () {
+    if (window.IEEESubscribe) window.IEEESubscribe.dismiss();
+    $("reminder-card").hidden = true;
+  });
+  loadNextEvent();
 
   // Coming back from a game with the browser's Back button may restore this
   // page from cache: refresh the scores.

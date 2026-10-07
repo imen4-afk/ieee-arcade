@@ -22,6 +22,9 @@ Live site: https://ieee-arcade.vercel.app
 | `games/2048/` | **IEEE Journey** (2048 reskin) |
 | `games/t-rex/` | **Ezzdin 101** (T-Rex runner reskin) |
 | `games/memory/` | **Tech Match** (memory game with our chapter and partner logos) |
+| `events.html` | Upcoming events this month (+ the next 3), Google Calendar links, email reminders sign-up |
+| `unsubscribe.html` | Stop event reminders |
+| `admin/` | **Admin space** (events, subscribers, reminder emails). Not linked from any page. |
 
 ## Run it locally
 
@@ -52,6 +55,42 @@ To remove a player (e.g. an inappropriate nickname): Supabase dashboard → Tabl
 - **Log out:** hub → ☰ menu → Log out. Staff can also long-press the Student Branch logo for 3 seconds
   (useful to reuse a demo phone). Logging out clears the nickname, token and local scores on that phone only.
 - Forgotten password: players ask a committee member at the stand.
+
+## Managing events and reminders
+
+### The admin space
+Open **https://ieee-arcade.vercel.app/admin/** (locally: http://localhost:3000/admin/) and log in with an
+admin email + password. The admin space is a separate folder (`admin/`) that doesn't use the player accounts.
+
+**Security:** the real protection is **Supabase Auth + the database rules (RLS)**: without an admin
+login, nobody can read the subscribers or change events, even if they find the page. Hiding the page
+(not linked anywhere, `noindex`, `robots.txt`, extra headers in `vercel.json`) is only an extra layer.
+The admin session is kept in the tab only (`sessionStorage`) and ends after 30 minutes of inactivity.
+
+**Never use the `service_role` / secret key** (`sb_secret_...`) in the site, the admin page or this repo.
+Everything runs with the public anon key from `js/config.js` + the admin's login.
+
+### Add an admin (Supabase dashboard)
+1. **Authentication → Users → Add user → Create new user**: enter the email and a strong password
+   (tick "Auto Confirm User"). Sign-ups are disabled, so this is the only way to create an account.
+2. **Table Editor → `admins` → Insert row**: put that user's id (copy the "UID" from the Users list).
+3. The person can now log in at `/admin/`. To remove an admin, delete their row in `admins`
+   (and the user in Authentication if they should not log in at all).
+
+### Add or edit events
+Admin → **📅 Events**: fill in the title, date and start time (Tunis time), optional end time, location,
+chapter (SB / CS / CIS / RAS / WIE), optional registration link (`https://` only) and **Published**.
+Drafts (Published unticked) are invisible on the public page. Use **Edit**, **Duplicate** (to copy an event
+into the form) or **Delete** on each event. The public page `events.html` and the dashboard update by themselves.
+
+### Send a reminder
+1. Admin → **✉️ Reminders** → choose the event: the subject and body are generated (with the unsubscribe link).
+2. **Open in Gmail** (or copy the subject and body into your email app).
+3. **Copy BCC list** and paste it into the **Bcc** field, **never in To or CC**, so subscribers can't see
+   each other's addresses. Put your own address in To.
+
+The subscribers list (Admin → **📬 Subscribers**) shows only people who ticked the consent box. They can
+stop at any time on `unsubscribe.html`. Emails are never stored on players' phones or shown on the scoreboard.
 
 ## Add or edit quiz questions
 

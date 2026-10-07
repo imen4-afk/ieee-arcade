@@ -166,7 +166,23 @@
     fsBtn.style.opacity = document.fullscreenElement ? "0.25" : "1";
   });
 
+  // ---------- Next event (public, published events) ----------
+
+  function refreshNextEvent() {
+    if (!window.IEEEEvents) return;
+    window.IEEEEvents.fetchUpcoming(1).then(function (r) {
+      var ev = r.ok && r.events[0];
+      $("dash-next").hidden = !ev;
+      if (ev) {
+        $("dash-next-text").textContent = ev.title + " · " +
+          window.IEEEEvents.longDate(ev.starts_at) + ", " + window.IEEEEvents.time(ev.starts_at);
+      }
+    });
+  }
+
   $("dash-url").textContent = PUBLIC_URL;
   refresh();
   setInterval(refresh, REFRESH_MS);
+  refreshNextEvent();
+  setInterval(refreshNextEvent, 5 * 60 * 1000);
 })();

@@ -75,9 +75,19 @@
     }
   }
 
+  // "📅" link to the events page in the top bar of every user page (except events.html itself)
+  function addEventsLink() {
+    var bar = document.querySelector(".topbar");
+    if (!bar || document.getElementById("events-page")) return;
+    var link = el("a", { "class": "topbar-icon", href: root + "events.html", title: "Upcoming events", "aria-label": "Upcoming events" }, "📅");
+    var chip = bar.querySelector("[data-player-chip]");
+    bar.insertBefore(link, chip || null);
+  }
+
   function init() {
     var footer = document.getElementById("site-footer");
     if (footer) buildFooter(footer);
+    addEventsLink();
     fillPlayerChips();
   }
 
