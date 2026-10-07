@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#0a0a0a">
+  <title>Binary Blitz – IEEE Arcade</title>
+  <link rel="icon" href="../../assets/img/sb-icon.png">
+  <link rel="stylesheet" href="../../css/style.css">
+  <link rel="stylesheet" href="../../css/game-kit.css">
+  <link rel="stylesheet" href="binary.css">
+</head>
+<body>
+
+  <header class="topbar">
+    <a class="back-btn" href="../../index.html">← Arcade</a>
+    <span class="sb-logo">
+      <img class="logo-img" src="../../assets/img/sb-logo-white.png" alt="IEEE ISIMA Student Branch logo"
+           onerror="this.hidden = true; this.nextElementSibling.hidden = false;">
+      <span class="logo-fallback" hidden>IEEE ISIMA SB</span>
+    </span>
+    <h1 class="topbar-title">Binary Blitz</h1>
+  </header>
+  <div class="gk-subbar" id="gk-subbar"></div>
+
+  <main class="game-main">
+    <section class="card gk-screen" id="gk-start" hidden></section>
+
+    <div id="gk-play" hidden>
+      <div class="gk-hud">
+        <span>✅ <span id="bb-correct">0</span></span>
+        <span class="bb-level" id="bb-level">4 bits</span>
+        <span>⏱ <span id="bb-time">60</span>s</span>
+      </div>
+      <div class="gk-timer" aria-hidden="true"><div class="gk-timer-fill" id="bb-timer"></div></div>
+
+      <div class="card bb-target" id="bb-target-card">
+        <span class="small">Make this number</span>
+        <span class="bb-target-num" id="bb-target" aria-live="polite">0</span>
+      </div>
+
+      <div class="bb-bits gk-touch" id="bb-bits" role="group" aria-label="Bit switches"></div>
+
+      <p class="bb-readout" aria-live="polite">Your value: <strong id="bb-value">0</strong> / Binary: <strong id="bb-binary">0000</strong></p>
+      <button type="button" class="btn btn-ghost btn-block" id="bb-skip">Skip (−3 s)</button>
+    </div>
+
+    <section class="card gk-screen" id="gk-end" hidden></section>
+  </main>
+
+  <footer id="site-footer" class="site-footer"></footer>
+
+  <script src="../../js/config.js"></script>
+  <script src="../../js/activities.js"></script>
+  <script src="../../js/arcade.js"></script>
+  <script src="../../js/layout.js" data-root="../../"></script>
+  <script src="../../js/game-kit.js"></script>
+  <script src="binary.js"></script>
+</body>
+</html>
