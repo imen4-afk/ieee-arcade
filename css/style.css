@@ -666,8 +666,18 @@ input[type="password"]:focus { outline: none; border-color: var(--blue-soft); }
 .contact-list .ico { flex: 0 0 24px; text-align: center; }
 .contact-list a { word-break: break-all; }
 
-.credits ul { padding-left: 20px; margin: 0; }
-.credits li { margin-bottom: 8px; }
+.credits-card { text-align: center; }
+.credits-author { font-size: 1.05rem; margin: 0; }
+.credits-signature { margin: 10px 0 0; }
+.credits-signature a {
+  font-family: "Segoe Script", "Brush Script MT", "Comic Sans MS", cursive;   /* handwritten-looking signature */
+  font-size: 1.35rem;
+  color: var(--orange);
+  text-decoration: none;
+  display: inline-block;
+  transform: rotate(-3deg);
+}
+.credits-signature a:hover, .credits-signature a:focus-visible { text-decoration: underline; }
 
 /* ---------- Footer (same on every page, built by js/layout.js) ---------- */
 .site-footer {

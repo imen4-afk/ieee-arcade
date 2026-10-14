@@ -1,4 +1,7 @@
 /*
+ * Hi, this is Imen. I got this game from a repository that belongs to Logan Engstrom & Garrett Finucane:
+ * Hextris – https://github.com/hextris/hextris (GPL-3.0, see LICENSE.md in this folder).
+ *
  * Hextris (game-hextris) – IEEE Arcade wrapper around the original game (game.html, GPL-3.0).
  * The game runs in an iframe that fills the screen under the arcade header, so its own
  * canvas sizing and "tap left / right half" controls work unchanged.

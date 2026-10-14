@@ -1,4 +1,7 @@
 /*
+ * Hi, this is Imen. I got this game from a repository that belongs to Gabriele Cirulli:
+ * 2048 – https://github.com/gabrielecirulli/2048 (MIT License, see ../LICENSE.txt).
+ *
  * IEEE Journey – IEEE Arcade additions to 2048 (not part of the original game).
  * The original files only call IEEEJourney.label() and IEEEJourney.onGameEnd().
  */

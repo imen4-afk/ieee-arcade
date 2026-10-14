@@ -183,6 +183,11 @@ white artwork, so they always sit on dark tiles.
 
 ## Credits
 
+This project is made by **Imen Othmen**, Chair of the Computer Society Chapter ISIMA.
+*[imen4-afk](https://github.com/imen4-afk) was here ✍️*
+
+Games adapted from open-source repositories (each one is also credited in its own source code):
+
 - **IEEE Journey** is based on [2048](https://github.com/gabrielecirulli/2048) by Gabriele Cirulli (MIT License, `games/2048/LICENSE.txt`).
 - **Ezzdin 101** is based on [T-Rex Runner](https://github.com/wayou/t-rex-runner) by wayou, extracted from Chromium (BSD 3-Clause License, `games/t-rex/LICENSE`).
 - **Hextris** is [Hextris](https://github.com/hextris/hextris) by Logan Engstrom & Garrett Finucane (GPL-3.0, `games/hextris/LICENSE.md`), with ads and trackers removed.
